@@ -213,7 +213,6 @@
 
 <script setup lang="ts">
   import type { CategoryData } from '@/api/mock'
-  import { computed, reactive, ref } from 'vue'
   import { z } from 'zod'
   import {
     useCategories,

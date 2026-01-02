@@ -278,7 +278,6 @@
 
 <script setup lang="ts">
   import type { UserData } from '@/api/mock'
-  import { reactive, ref } from 'vue'
   import { z } from 'zod'
   import {
     useCreateUser,

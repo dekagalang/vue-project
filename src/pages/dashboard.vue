@@ -213,8 +213,6 @@
     Title,
     Tooltip,
   } from 'chart.js'
-  import { computed, unref } from 'vue'
-  import { Chart as _ChartComponent } from 'vue-chartjs'
   import { useCategories, useProducts, useUsers } from '@/composables/useApi'
 
   ChartJS.register(
