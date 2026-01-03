@@ -31,7 +31,6 @@ export function useUsers() {
     queryKey: ['users'],
     queryFn: () => getUsers({ page: 1, per_page: 10 }),
     select: data => data.data.items,
-    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
@@ -80,7 +79,6 @@ export function useProducts() {
     queryKey: ['products'],
     queryFn: () => getProducts({ page: 1, per_page: 10 }),
     select: data => data.data.items,
-    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
@@ -129,7 +127,6 @@ export function useCategories() {
     queryKey: ['categories'],
     queryFn: () => getCategories({ page: 1, per_page: 10 }),
     select: data => data.data.items,
-    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
