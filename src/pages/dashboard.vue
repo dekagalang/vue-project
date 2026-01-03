@@ -79,7 +79,7 @@
           <v-card>
             <v-card-title>Users by Role</v-card-title>
             <v-card-text>
-              <div
+              <!-- <div
                 v-if="usersQuery.isPending"
                 class="text-center pa-8"
               >
@@ -87,6 +87,10 @@
               </div>
               <DoughnutChart
                 v-else
+                :chart-data="userRoleChartData"
+                :options="chartOptions"
+              /> -->
+              <DoughnutChart
                 :chart-data="userRoleChartData"
                 :options="chartOptions"
               />
@@ -101,7 +105,7 @@
           <v-card>
             <v-card-title>Products per Category</v-card-title>
             <v-card-text>
-              <div
+              <!-- <div
                 v-if="productsQuery.isPending"
                 class="text-center pa-8"
               >
@@ -109,6 +113,10 @@
               </div>
               <BarChart
                 v-else
+                :chart-data="productCategoryChartData"
+                :options="chartOptions"
+              /> -->
+              <BarChart
                 :chart-data="productCategoryChartData"
                 :options="chartOptions"
               />

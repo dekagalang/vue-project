@@ -28,7 +28,7 @@
       </v-row>
 
       <!-- Loading State -->
-      <v-row
+      <!-- <v-row
         v-if="products.isPending"
         justify="center"
       >
@@ -37,10 +37,10 @@
             <v-skeleton-loader type="table" />
           </v-card>
         </v-col>
-      </v-row>
+      </v-row> -->
 
       <!-- Error State -->
-      <v-row v-else-if="products.isError">
+      <!-- <v-row v-else-if="products.isError">
         <v-col cols="12">
           <v-alert
             title="Error Loading Products"
@@ -49,10 +49,11 @@
             {{ products.error }}
           </v-alert>
         </v-col>
-      </v-row>
+      </v-row> -->
 
       <!-- Data Table -->
-      <v-row v-else>
+      <!-- <v-row v-else> -->
+      <v-row>
         <v-col cols="12">
           <v-card>
             <v-data-table
