@@ -25,6 +25,7 @@ export default defineConfig({
         VueRouterAutoImports,
         {
           pinia: ['defineStore', 'storeToRefs'],
+          zod: ['z'],
         },
       ],
       dts: 'src/auto-imports.d.ts',
@@ -72,15 +73,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('src', import.meta.url)),
     },
-    extensions: [
-      '.js',
-      '.json',
-      '.jsx',
-      '.mjs',
-      '.ts',
-      '.tsx',
-      '.vue',
-    ],
+    extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
   },
   server: {
     port: 3000,

@@ -59,22 +59,22 @@
               class="elevation-0"
               :headers="headers"
               item-value="id"
-              :items="(users.data as any) || []"
+              :items="users.data.value || []"
             >
               <template #[`item.role`]="{ item }">
                 <v-chip
-                  :color="getRoleColor((item as UserData).role)"
+                  :color="getRoleColor((item as User).role)"
                   size="small"
                   text-color="white"
                 >
-                  {{ (item as UserData).role }}
+                  {{ (item as User).role }}
                 </v-chip>
               </template>
 
               <template #[`item.phones`]="{ item }">
                 <div class="text-caption">
                   <div
-                    v-for="phone in (item as UserData).phones"
+                    v-for="phone in item.phones"
                     :key="phone.number"
                   >
                     {{ phone.label }}: {{ phone.number }}
@@ -88,14 +88,14 @@
                   icon="mdi-pencil"
                   size="small"
                   variant="text"
-                  @click="openEditDialog(item as UserData)"
+                  @click="openEditDialog(item)"
                 />
                 <v-btn
                   color="error"
                   icon="mdi-delete"
                   size="small"
                   variant="text"
-                  @click="confirmDelete((item as UserData).id)"
+                  @click="confirmDelete(item.id)"
                 />
               </template>
             </v-data-table>
@@ -233,7 +233,7 @@
           <v-btn
             color="primary"
             :loading="
-              (createUser.isPending as any) || (updateUser.isPending as any)
+              unref(createUser.isPending) || unref(updateUser.isPending)
             "
             @click="handleSave"
           >
@@ -256,7 +256,7 @@
           <v-btn @click="deleteDialogOpen = false">Cancel</v-btn>
           <v-btn
             color="error"
-            :loading="deleteUser.isPending as any"
+            :loading="unref(deleteUser.isPending)"
             @click="handleDelete"
           >
             Delete
@@ -277,8 +277,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { UserData } from '@/api/mock'
-  import { z } from 'zod'
+  import type { User } from '@/api/type'
   import {
     useCreateUser,
     useDeleteUser,
@@ -321,7 +320,7 @@
 
   const userSchema = z.object({
     name: z.string().min(3, 'Name must be at least 3 characters'),
-    email: z.string().email('Invalid email format'),
+    email: z.email('Invalid email format'),
     role: z.enum(['admin', 'manager', 'user']),
     phones: z.array(
       z.object({
@@ -383,7 +382,7 @@
     dialogOpen.value = true
   }
 
-  function openEditDialog(item: UserData) {
+  function openEditDialog(item: User) {
     editingId.value = item.id
     form.name = item.name
     form.email = item.email

@@ -69,8 +69,8 @@ meta:
 
               <div class="text-caption text-center text-disabled">
                 <p class="mb-2"><strong>Demo Credentials:</strong></p>
-                <p>Email: <code>admin@example.com</code></p>
-                <p>Password: <code>password123</code></p>
+                <p>Email: <span>admin@example.com</span></p>
+                <p>Password: <span>password123</span></p>
               </div>
             </v-card-text>
           </v-card>
@@ -81,7 +81,6 @@ meta:
 </template>
 
 <script setup lang="ts">
-  import { z } from 'zod'
   import { useAuthStore } from '@/stores/auth'
 
   const router = useRouter()
@@ -93,13 +92,13 @@ meta:
   const passwordError = ref('')
 
   const loginSchema = z.object({
-    email: z.string().email('Invalid email format'),
+    email: z.email('Invalid email format'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
   })
 
   function validateEmail() {
     try {
-      z.string().email().parse(email.value)
+      z.email().parse(email.value)
       emailError.value = ''
     } catch (error) {
       if (error instanceof z.ZodError) {

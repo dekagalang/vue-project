@@ -70,6 +70,7 @@ declare global {
   const watchEffect: typeof import('vue').watchEffect
   const watchPostEffect: typeof import('vue').watchPostEffect
   const watchSyncEffect: typeof import('vue').watchSyncEffect
+  const z: typeof import('zod').z
 }
 // for type re-export
 declare global {
@@ -147,5 +148,6 @@ declare module 'vue' {
     readonly watchEffect: UnwrapRef<typeof import('vue')['watchEffect']>
     readonly watchPostEffect: UnwrapRef<typeof import('vue')['watchPostEffect']>
     readonly watchSyncEffect: UnwrapRef<typeof import('vue')['watchSyncEffect']>
+    readonly z: UnwrapRef<typeof import('zod')['z']>
   }
 }

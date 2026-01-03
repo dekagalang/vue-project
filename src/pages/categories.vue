@@ -64,17 +64,17 @@
               :pagination="pagination"
               @update:expanded="expanded = $event"
             >
-              <template #[`item.data-table-expand`]="{ item, internalItem }">
+              <template #[`item.data-table-expand`]="{ item }">
                 <v-btn
                   v-if="hasChildren(item.id)"
                   :icon="
-                    expanded.some((e: any) => e?.id === item.id)
+                    expanded.some((e: CategoryData) => e.id === item.id)
                       ? 'mdi-chevron-down'
                       : 'mdi-chevron-right'
                   "
                   size="small"
                   variant="text"
-                  @click.stop="toggleExpand(internalItem)"
+                  @click.stop="toggleExpand(item as CategoryData)"
                 />
               </template>
 
@@ -165,8 +165,7 @@
           <v-btn
             color="primary"
             :loading="
-              (createCategory.isPending as any) ||
-              (updateCategory.isPending as any)
+              unref(createCategory.isPending) || unref(updateCategory.isPending)
             "
             @click="handleSave"
           >
@@ -191,7 +190,7 @@
           <v-btn @click="deleteDialogOpen = false">Cancel</v-btn>
           <v-btn
             color="error"
-            :loading="deleteCategory.isPending as any"
+            :loading="unref(deleteCategory.isPending)"
             @click="handleDelete"
           >
             Delete
@@ -213,7 +212,6 @@
 
 <script setup lang="ts">
   import type { CategoryData } from '@/api/mock'
-  import { z } from 'zod'
   import {
     useCategories,
     useCreateCategory,
@@ -238,7 +236,7 @@
   const deleteDialogOpen = ref(false)
   const editingId = ref<string | null>(null)
   const deleteCategoryId = ref<string | null>(null)
-  const expanded = ref<any[]>([])
+  const expanded = ref<CategoryData[]>([])
   const pagination = ref({ page: 1, itemsPerPage: -1 })
 
   const form = reactive({
@@ -273,7 +271,7 @@
     if (!data) return []
 
     const allCategories = data
-    const result: (CategoryData & { _expanded?: boolean })[] = []
+    const result: CategoryData[] = []
 
     // Add parent categories first
     const parents = allCategories.filter((c: CategoryData) => !c.parentId)
@@ -281,7 +279,7 @@
       result.push(parent)
 
       // Add children if parent is expanded
-      if (expanded.value.some(e => e?.id === parent.id)) {
+      if (expanded.value.some(e => e.id === parent.id)) {
         const children = allCategories.filter(
           (c: CategoryData) => c.parentId === parent.id,
         )
@@ -299,8 +297,8 @@
 
   const getItemKey = (item: any) => item.id
 
-  function toggleExpand(item: any) {
-    const index = expanded.value.findIndex(e => e?.id === item.id)
+  function toggleExpand(item: CategoryData) {
+    const index = expanded.value.findIndex(e => e.id === item.id)
     if (index === -1) {
       expanded.value.push(item)
     } else {

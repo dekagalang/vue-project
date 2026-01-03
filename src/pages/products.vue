@@ -59,7 +59,7 @@
               class="elevation-0"
               :headers="headers"
               item-value="id"
-              :items="(products.data as any) || []"
+              :items="unref(products.data) || []"
             >
               <template #[`item.price`]="{ item }">
                 <span class="font-weight-bold"
@@ -196,8 +196,7 @@
           <v-btn
             color="primary"
             :loading="
-              (createProduct.isPending as any) ||
-              (updateProduct.isPending as any)
+              unref(createProduct.isPending) || unref(updateProduct.isPending)
             "
             @click="handleSave"
           >
@@ -220,7 +219,7 @@
           <v-btn @click="deleteDialogOpen = false">Cancel</v-btn>
           <v-btn
             color="error"
-            :loading="deleteProduct.isPending as any"
+            :loading="unref(deleteProduct.isPending)"
             @click="handleDelete"
           >
             Delete
@@ -242,7 +241,6 @@
 
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
-  import { z } from 'zod'
   import {
     useCategories,
     useCreateProduct,

@@ -1,25 +1,44 @@
+import type {
+  TCategoryCreateRequest,
+  TCategoryUpdateRequest,
+  TProductCreateRequest,
+  TProductUpdateRequest,
+  TUserCreateRequest,
+  TUserUpdateRequest,
+} from '@/api/type'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import {
-  categoryAPI,
-  type CategoryData,
-  productAPI,
-  type ProductData,
-  userAPI,
-  type UserData,
+  createCategory,
+  createProduct,
+  createUser,
+  deleteCategory,
+  deleteProduct,
+  deleteUser,
+  getCategories,
+  getCategory,
+  getProduct,
+  getProducts,
+  getUser,
+  getUsers,
+  updateCategory,
+  updateProduct,
+  updateUser,
 } from '@/api/mock'
 
 // User Queries
 export function useUsers() {
   return useQuery({
     queryKey: ['users'],
-    queryFn: () => userAPI.getAll(),
+    queryFn: () => getUsers({ page: 1, per_page: 10 }),
+    select: data => data.data.items,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
 export function useUser(id: string) {
   return useQuery({
     queryKey: ['user', id],
-    queryFn: () => userAPI.getById(id),
+    queryFn: () => getUser(id),
     enabled: !!id,
   })
 }
@@ -27,8 +46,7 @@ export function useUser(id: string) {
 export function useCreateUser() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: Omit<UserData, 'id' | 'createdAt'>) =>
-      userAPI.create(data),
+    mutationFn: (data: TUserCreateRequest) => createUser(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
@@ -38,8 +56,8 @@ export function useCreateUser() {
 export function useUpdateUser() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<UserData> }) =>
-      userAPI.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TUserUpdateRequest }) =>
+      updateUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
@@ -49,7 +67,7 @@ export function useUpdateUser() {
 export function useDeleteUser() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => userAPI.delete(id),
+    mutationFn: (id: string) => deleteUser(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
     },
@@ -60,14 +78,16 @@ export function useDeleteUser() {
 export function useProducts() {
   return useQuery({
     queryKey: ['products'],
-    queryFn: () => productAPI.getAll(),
+    queryFn: () => getProducts({ page: 1, per_page: 10 }),
+    select: data => data.data.items,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
 export function useProduct(id: string) {
   return useQuery({
     queryKey: ['product', id],
-    queryFn: () => productAPI.getById(id),
+    queryFn: () => getProduct(id),
     enabled: !!id,
   })
 }
@@ -75,8 +95,7 @@ export function useProduct(id: string) {
 export function useCreateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: Omit<ProductData, 'id' | 'createdAt'>) =>
-      productAPI.create(data),
+    mutationFn: (data: TProductCreateRequest) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
@@ -86,8 +105,8 @@ export function useCreateProduct() {
 export function useUpdateProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<ProductData> }) =>
-      productAPI.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TProductUpdateRequest }) =>
+      updateProduct(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
@@ -97,7 +116,7 @@ export function useUpdateProduct() {
 export function useDeleteProduct() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => productAPI.delete(id),
+    mutationFn: (id: string) => deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
@@ -108,14 +127,16 @@ export function useDeleteProduct() {
 export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
-    queryFn: () => categoryAPI.getAll(),
+    queryFn: () => getCategories({ page: 1, per_page: 10 }),
+    select: data => data.data.items,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
 }
 
 export function useCategory(id: string) {
   return useQuery({
     queryKey: ['category', id],
-    queryFn: () => categoryAPI.getById(id),
+    queryFn: () => getCategory(id),
     enabled: !!id,
   })
 }
@@ -123,8 +144,7 @@ export function useCategory(id: string) {
 export function useCreateCategory() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: Omit<CategoryData, 'id' | 'createdAt'>) =>
-      categoryAPI.create(data),
+    mutationFn: (data: TCategoryCreateRequest) => createCategory(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
     },
@@ -134,8 +154,8 @@ export function useCreateCategory() {
 export function useUpdateCategory() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CategoryData> }) =>
-      categoryAPI.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: TCategoryUpdateRequest }) =>
+      updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
     },
@@ -145,7 +165,7 @@ export function useUpdateCategory() {
 export function useDeleteCategory() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => categoryAPI.delete(id),
+    mutationFn: (id: string) => deleteCategory(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
     },
