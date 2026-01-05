@@ -164,15 +164,6 @@
     return ids
   })
 
-  function _toggleExpand(item: CategoryData) {
-    const index = expanded.value.findIndex(e => e.id === item.id)
-    if (index === -1) {
-      expanded.value.push(item)
-    } else {
-      expanded.value.splice(index, 1)
-    }
-  }
-
   function openCreateDialog() {
     editingId.value = null
     categoryDialogRef.value?.initializeCreate()

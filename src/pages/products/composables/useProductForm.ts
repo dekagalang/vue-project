@@ -1,41 +1,24 @@
 import type { Ref } from 'vue'
 import type { ProductData } from '@/api/mock'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useField, useForm } from 'vee-validate'
+import { z } from 'zod'
+
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(3, 'Name must be at least 3 characters'),
+    description: z
+      .string()
+      .min(10, 'Description must be at least 10 characters'),
+    price: z.number().positive('Price must be greater than 0'),
+    categoryId: z.string().min(1, 'Category is required'),
+    stock: z.number().nonnegative('Stock cannot be negative'),
+  }),
+)
 
 export function useProductForm(categoriesData: Ref<any[]>) {
   const { handleSubmit, handleReset } = useForm({
-    validationSchema: {
-      name(value: string) {
-        if (value && value.length >= 3) {
-          return true
-        }
-        return 'Name must be at least 3 characters'
-      },
-      description(value: string) {
-        if (value && value.length >= 10) {
-          return true
-        }
-        return 'Description must be at least 10 characters'
-      },
-      price(value: number) {
-        if (value && value > 0) {
-          return true
-        }
-        return 'Price must be greater than 0'
-      },
-      categoryId(value: string) {
-        if (value) {
-          return true
-        }
-        return 'Category is required'
-      },
-      stock(value: number) {
-        if (value !== null && value !== undefined && value >= 0) {
-          return true
-        }
-        return 'Stock cannot be negative'
-      },
-    },
+    validationSchema,
   })
 
   const name = useField<string>('name')

@@ -1,21 +1,17 @@
+import { toTypedSchema } from '@vee-validate/zod'
 import { useField, useForm } from 'vee-validate'
+import { z } from 'zod'
+
+const validationSchema = toTypedSchema(
+  z.object({
+    email: z.string().email('Invalid email format'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+  }),
+)
 
 export function useLoginForm() {
   const { handleSubmit, handleReset } = useForm({
-    validationSchema: {
-      email(value: string) {
-        if (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) {
-          return true
-        }
-        return 'Invalid email format'
-      },
-      password(value: string) {
-        if (value && value.length >= 6) {
-          return true
-        }
-        return 'Password must be at least 6 characters'
-      },
-    },
+    validationSchema,
   })
 
   const email = useField<string>('email')

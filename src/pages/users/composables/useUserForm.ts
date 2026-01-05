@@ -1,55 +1,30 @@
 import type { User } from '@/api/type'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useField, useForm } from 'vee-validate'
+import { z } from 'zod'
+
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(3, 'Name must be at least 3 characters'),
+    email: z.string().email('Invalid email format'),
+    role: z.enum(['admin', 'manager', 'user']),
+    phones: z
+      .array(
+        z.object({
+          label: z.string().min(1, 'Label is required'),
+          number: z
+            .string()
+            .regex(/^\d{10,}$/, 'Phone must be at least 10 digits'),
+        }),
+      )
+      .optional()
+      .default([]),
+  }),
+)
 
 export function useUserForm() {
   const { handleSubmit, handleReset } = useForm({
-    validationSchema: {
-      name(value: string) {
-        if (value && value.length >= 3) {
-          return true
-        }
-        return 'Name must be at least 3 characters'
-      },
-      email(value: string) {
-        if (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) {
-          return true
-        }
-        return 'Invalid email format'
-      },
-      role(value: string) {
-        if (value && ['admin', 'manager', 'user'].includes(value)) {
-          return true
-        }
-        return 'Please select a role'
-      },
-      phones(value: Array<{ label: string; number: string }>) {
-        if (!value || value.length === 0) {
-          return true
-        }
-
-        const errors: any[] = []
-
-        for (const [index, phone] of value.entries()) {
-          const phoneErrors: any = {}
-
-          if (!phone.label) {
-            phoneErrors.label = 'Label is required'
-          }
-
-          if (!phone.number) {
-            phoneErrors.number = 'Phone number is required'
-          } else if (!/^\d{10,}$/.test(phone.number)) {
-            phoneErrors.number = 'Phone must be at least 10 digits'
-          }
-
-          if (Object.keys(phoneErrors).length > 0) {
-            errors[index] = phoneErrors
-          }
-        }
-
-        return errors.length > 0 ? errors : true
-      },
-    },
+    validationSchema,
   })
 
   const name = useField<string>('name')

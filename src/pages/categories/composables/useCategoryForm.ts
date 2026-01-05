@@ -1,26 +1,22 @@
 import type { Ref } from 'vue'
 import type { CategoryData } from '@/api/mock'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useField, useForm } from 'vee-validate'
+import { z } from 'zod'
+
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(3, 'Name must be at least 3 characters'),
+    description: z
+      .string()
+      .min(10, 'Description must be at least 10 characters'),
+    parentId: z.string().nullable().optional(),
+  }),
+)
 
 export function useCategoryForm(mockCategories: Ref<CategoryData[]>) {
   const { handleSubmit, handleReset } = useForm({
-    validationSchema: {
-      name(value: string) {
-        if (value && value.length >= 3) {
-          return true
-        }
-        return 'Name must be at least 3 characters'
-      },
-      description(value: string) {
-        if (value && value.length >= 10) {
-          return true
-        }
-        return 'Description must be at least 10 characters'
-      },
-      parentId(_value: string | null) {
-        return true
-      },
-    },
+    validationSchema,
   })
 
   const name = useField<string>('name')
