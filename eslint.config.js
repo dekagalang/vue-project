@@ -14,10 +14,6 @@ export default vuetify({
     '@stylistic/space-before-function-paren': 'off',
     '@stylistic/member-delimiter-style': 'off',
     '@stylistic/operator-linebreak': 'off',
-    // '@stylistic/comma-dangle': 'off',
-    // '@stylistic/function-keyword': 'off',
-    // 'import/order': 'off',
-    // 'no-unused-vars': 'off',
-    // '@typescript-eslint/no-unused-vars': 'off',
+    '@stylistic/quote-props': 'off',
   },
 })

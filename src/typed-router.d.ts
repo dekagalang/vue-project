@@ -23,6 +23,9 @@ declare module 'vue-router/auto-routes' {
     '/login': RouteRecordInfo<'/login', '/login', Record<never, never>, Record<never, never>>,
     '/products': RouteRecordInfo<'/products', '/products', Record<never, never>, Record<never, never>>,
     '/users/': RouteRecordInfo<'/users/', '/users', Record<never, never>, Record<never, never>>,
+    '/users/components/DeleteConfirmDialog': RouteRecordInfo<'/users/components/DeleteConfirmDialog', '/users/components/DeleteConfirmDialog', Record<never, never>, Record<never, never>>,
+    '/users/components/UserDialog': RouteRecordInfo<'/users/components/UserDialog', '/users/components/UserDialog', Record<never, never>, Record<never, never>>,
+    '/users/components/UserTable': RouteRecordInfo<'/users/components/UserTable', '/users/components/UserTable', Record<never, never>, Record<never, never>>,
   }
 
   /**
@@ -54,6 +57,18 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/users/index.vue': {
       routes: '/users/'
+      views: never
+    }
+    'src/pages/users/components/DeleteConfirmDialog.vue': {
+      routes: '/users/components/DeleteConfirmDialog'
+      views: never
+    }
+    'src/pages/users/components/UserDialog.vue': {
+      routes: '/users/components/UserDialog'
+      views: never
+    }
+    'src/pages/users/components/UserTable.vue': {
+      routes: '/users/components/UserTable'
       views: never
     }
   }
