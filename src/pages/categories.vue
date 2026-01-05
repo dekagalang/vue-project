@@ -28,8 +28,8 @@
       </v-row>
 
       <!-- Loading State -->
-      <!-- <v-row
-        v-if="categories.isPending"
+      <v-row
+        v-if="isPending"
         justify="center"
       >
         <v-col cols="12">
@@ -37,23 +37,22 @@
             <v-skeleton-loader type="list-item@3" />
           </v-card>
         </v-col>
-      </v-row> -->
+      </v-row>
 
       <!-- Error State -->
-      <!-- <v-row v-else-if="categories.isError">
+      <v-row v-else-if="isError">
         <v-col cols="12">
           <v-alert
             title="Error Loading Categories"
             type="error"
           >
-            {{ categories.error }}
+            {{ error?.message || 'Failed to load categories' }}
           </v-alert>
         </v-col>
-      </v-row> -->
+      </v-row>
 
       <!-- Tree View with Expansion -->
-      <!-- <v-row v-else> -->
-      <v-row>
+      <v-row v-else>
         <v-col cols="12">
           <v-card>
             <v-data-table
@@ -129,26 +128,26 @@
         <v-card-text class="pa-6">
           <v-form @submit.prevent="handleSave">
             <v-text-field
-              v-model="form.name"
+              v-model="name.value.value"
               class="mb-4"
-              :error-messages="formErrors.name"
+              :error-messages="name.meta.touched ? name.errorMessage.value : []"
               label="Category Name"
               outlined
-              @blur="validateField('name')"
             />
 
             <v-textarea
-              v-model="form.description"
+              v-model="description.value.value"
               class="mb-4"
-              :error-messages="formErrors.description"
+              :error-messages="
+                description.meta.touched ? description.errorMessage.value : []
+              "
               label="Description"
               outlined
               rows="3"
-              @blur="validateField('description')"
             />
 
             <v-select
-              v-model="form.parentId"
+              v-model="parentId.value.value"
               class="mb-4"
               clearable
               item-title="name"
@@ -165,9 +164,7 @@
           <v-btn @click="closeDialog">Cancel</v-btn>
           <v-btn
             color="primary"
-            :loading="
-              unref(createCategory.isPending) || unref(updateCategory.isPending)
-            "
+            :loading="false"
             @click="handleSave"
           >
             Save
@@ -191,7 +188,7 @@
           <v-btn @click="deleteDialogOpen = false">Cancel</v-btn>
           <v-btn
             color="error"
-            :loading="unref(deleteCategory.isPending)"
+            :loading="false"
             @click="handleDelete"
           >
             Delete
@@ -213,12 +210,8 @@
 
 <script setup lang="ts">
   import type { CategoryData } from '@/api/mock'
-  import {
-    useCategories,
-    useCreateCategory,
-    useDeleteCategory,
-    useUpdateCategory,
-  } from '@/composables/useApi'
+  import { useField, useForm } from 'vee-validate'
+  import { useCategories, useDeleteCategory } from '@/composables/useApi'
 
   const headers = [
     { title: '', value: 'data-table-expand', width: '40px' },
@@ -228,10 +221,17 @@
     { title: 'Actions', value: 'actions', width: '10%', sortable: false },
   ]
 
-  const categories = useCategories()
-  const createCategory = useCreateCategory()
-  const updateCategory = useUpdateCategory()
+  // Get categories from composables
+  const { data: categoriesData, isPending, isError, error } = useCategories()
   const deleteCategory = useDeleteCategory()
+
+  // Local ref for mutations
+  const mutatedCategories = ref<CategoryData[] | null>(null)
+
+  // mockCategories reactively shows composables data or local mutations
+  const mockCategories = computed(
+    () => mutatedCategories.value || categoriesData.value || [],
+  )
 
   const dialogOpen = ref(false)
   const deleteDialogOpen = ref(false)
@@ -240,38 +240,40 @@
   const expanded = ref<CategoryData[]>([])
   const pagination = ref({ page: 1, itemsPerPage: -1 })
 
-  const form = reactive({
-    name: '',
-    description: '',
-    parentId: null as string | null,
-  })
-
-  const formErrors = reactive<Record<string, any>>({})
-
   const snackbar = reactive({
     show: false,
     message: '',
     color: 'success',
   })
 
-  const categorySchema = z.object({
-    name: z.string().min(3, 'Name must be at least 3 characters'),
-    description: z
-      .string()
-      .min(10, 'Description must be at least 10 characters'),
-    parentId: z.string().nullable(),
+  const { handleSubmit, handleReset } = useForm({
+    validationSchema: {
+      name(value: string) {
+        if (value && value.length >= 3) return true
+        return 'Name must be at least 3 characters'
+      },
+      description(value: string) {
+        if (value && value.length >= 10) return true
+        return 'Description must be at least 10 characters'
+      },
+      parentId(_value: string | null) {
+        return true
+      },
+    },
   })
 
+  const name = useField<string>('name')
+  const description = useField<string>('description')
+  const parentId = useField<string | null>('parentId')
+
   const parentCategories = computed(() => {
-    const data = unref(categories.data) || []
-    return data.filter((c: CategoryData) => !c.parentId)
+    return mockCategories.value.filter((c: CategoryData) => !c.parentId)
   })
 
   const treeItems = computed(() => {
-    const data = unref(categories.data)
-    if (!data) return []
+    const allCategories = mockCategories.value
+    if (!allCategories) return []
 
-    const allCategories = data
     const result: CategoryData[] = []
 
     // Add parent categories first
@@ -292,8 +294,9 @@
   })
 
   function hasChildren(categoryId: string) {
-    const data = unref(categories.data) || []
-    return data.some((c: CategoryData) => c.parentId === categoryId)
+    return mockCategories.value.some(
+      (c: CategoryData) => c.parentId === categoryId,
+    )
   }
 
   const getItemKey = (item: any) => item.id
@@ -307,79 +310,61 @@
     }
   }
 
-  function validateField(fieldName: string) {
-    try {
-      if (fieldName === 'name') {
-        z.string().min(3).parse(form.name)
-        delete formErrors.name
-      } else if (fieldName === 'description') {
-        z.string().min(10).parse(form.description)
-        delete formErrors.description
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        formErrors[fieldName] = error.issues?.[0]?.message ?? 'Invalid field'
-      }
-    }
-  }
-
   function openCreateDialog() {
     editingId.value = null
-    form.name = ''
-    form.description = ''
-    form.parentId = null
-    formErrors.name = ''
-    formErrors.description = ''
+    name.value.value = ''
+    description.value.value = ''
+    parentId.value.value = null
     dialogOpen.value = true
   }
 
   function openEditDialog(item: CategoryData) {
     editingId.value = item.id
-    form.name = item.name
-    form.description = item.description
-    form.parentId = item.parentId || null
-    formErrors.name = ''
-    formErrors.description = ''
+    name.value.value = item.name
+    description.value.value = item.description
+    parentId.value.value = item.parentId || null
     dialogOpen.value = true
   }
 
   function closeDialog() {
     dialogOpen.value = false
     editingId.value = null
+    handleReset()
   }
 
-  async function handleSave() {
+  const handleSave = handleSubmit(async () => {
     try {
-      categorySchema.parse(form)
-      formErrors.name = ''
-      formErrors.description = ''
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        for (const err of error.issues) {
-          const path = err.path[0] as string
-          formErrors[path] = err.message
-        }
-      }
-      return
-    }
-
-    try {
+      const currentData = mockCategories.value
       if (editingId.value) {
-        await updateCategory.mutateAsync({
-          id: editingId.value,
-          data: {
-            name: form.name,
-            description: form.description,
-            parentId: form.parentId,
-          },
-        })
+        // Update existing category
+        const index = currentData.findIndex(c => c.id === editingId.value)
+        if (index !== -1) {
+          const updatedData = [...currentData]
+          const currentCategory = updatedData[index]!
+          updatedData[index] = {
+            id: currentCategory.id,
+            name: name.value.value as string,
+            description: description.value.value as string,
+            parentId: parentId.value.value,
+            created_at: currentCategory.created_at,
+            updated_at: currentCategory.updated_at,
+            deleted_at: currentCategory.deleted_at,
+          }
+          mutatedCategories.value = updatedData
+        }
         snackbar.message = 'Category updated successfully'
       } else {
-        await createCategory.mutateAsync({
-          name: form.name,
-          description: form.description,
-          parentId: form.parentId,
-        })
+        // Create new category
+        const newCategory: CategoryData = {
+          id: Date.now().toString(),
+          name: name.value.value as string,
+          description: description.value.value as string,
+          parentId: parentId.value.value,
+          created_at: null,
+          updated_at: null,
+          deleted_at: null,
+        }
+        mutatedCategories.value = [...currentData, newCategory]
         snackbar.message = 'Category created successfully'
       }
       snackbar.color = 'success'
@@ -390,7 +375,7 @@
       snackbar.color = 'error'
       snackbar.show = true
     }
-  }
+  })
 
   function confirmDelete(id: string) {
     deleteCategoryId.value = id
@@ -402,6 +387,9 @@
 
     try {
       await deleteCategory.mutateAsync(deleteCategoryId.value)
+      mutatedCategories.value = mockCategories.value.filter(
+        c => c.id !== deleteCategoryId.value,
+      )
       snackbar.message = 'Category deleted successfully'
       snackbar.color = 'success'
       snackbar.show = true

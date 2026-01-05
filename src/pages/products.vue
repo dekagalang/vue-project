@@ -28,8 +28,8 @@
       </v-row>
 
       <!-- Loading State -->
-      <!-- <v-row
-        v-if="products.isPending"
+      <v-row
+        v-if="isPending"
         justify="center"
       >
         <v-col cols="12">
@@ -37,30 +37,29 @@
             <v-skeleton-loader type="table" />
           </v-card>
         </v-col>
-      </v-row> -->
+      </v-row>
 
       <!-- Error State -->
-      <!-- <v-row v-else-if="products.isError">
+      <v-row v-else-if="isError">
         <v-col cols="12">
           <v-alert
             title="Error Loading Products"
             type="error"
           >
-            {{ products.error }}
+            {{ error?.message || 'Failed to load products' }}
           </v-alert>
         </v-col>
-      </v-row> -->
+      </v-row>
 
       <!-- Data Table -->
-      <!-- <v-row v-else> -->
-      <v-row>
+      <v-row v-else>
         <v-col cols="12">
           <v-card>
             <v-data-table
               class="elevation-0"
               :headers="headers"
               item-value="id"
-              :items="unref(products.data) || []"
+              :items="mockProducts"
             >
               <template #[`item.price`]="{ item }">
                 <span class="font-weight-bold"
@@ -127,11 +126,12 @@
                 md="6"
               >
                 <v-text-field
-                  v-model="form.name"
-                  :error-messages="formErrors.name"
+                  v-model="name.value.value"
+                  :error-messages="
+                    name.meta.touched ? name.errorMessage.value : []
+                  "
                   label="Product Name"
                   outlined
-                  @blur="validateField('name')"
                 />
               </v-col>
 
@@ -140,10 +140,13 @@
                 md="6"
               >
                 <v-select
-                  v-model="form.categoryId"
+                  v-model="categoryId.value.value"
                   item-title="name"
                   item-value="id"
-                  :items="unref(categories.data) || []"
+                  :items="categoriesData || []"
+                  :error-messages="
+                    categoryId.meta.touched ? categoryId.errorMessage.value : []
+                  "
                   label="Category"
                   outlined
                 />
@@ -154,12 +157,13 @@
                 md="6"
               >
                 <v-text-field
-                  v-model.number="form.price"
-                  :error-messages="formErrors.price"
+                  v-model.number="price.value.value"
+                  :error-messages="
+                    price.meta.touched ? price.errorMessage.value : []
+                  "
                   label="Price (Rp)"
                   outlined
                   type="number"
-                  @blur="validateField('price')"
                 />
               </v-col>
 
@@ -168,23 +172,27 @@
                 md="6"
               >
                 <v-text-field
-                  v-model.number="form.stock"
-                  :error-messages="formErrors.stock"
+                  v-model.number="stock.value.value"
+                  :error-messages="
+                    stock.meta.touched ? stock.errorMessage.value : []
+                  "
                   label="Stock"
                   outlined
                   type="number"
-                  @blur="validateField('stock')"
                 />
               </v-col>
 
               <v-col cols="12">
                 <v-textarea
-                  v-model="form.description"
-                  :error-messages="formErrors.description"
+                  v-model="description.value.value"
+                  :error-messages="
+                    description.meta.touched
+                      ? description.errorMessage.value
+                      : []
+                  "
                   label="Description"
                   outlined
                   rows="4"
-                  @blur="validateField('description')"
                 />
               </v-col>
             </v-row>
@@ -196,9 +204,7 @@
           <v-btn @click="closeDialog">Cancel</v-btn>
           <v-btn
             color="primary"
-            :loading="
-              unref(createProduct.isPending) || unref(updateProduct.isPending)
-            "
+            :loading="false"
             @click="handleSave"
           >
             Save
@@ -220,7 +226,7 @@
           <v-btn @click="deleteDialogOpen = false">Cancel</v-btn>
           <v-btn
             color="error"
-            :loading="unref(deleteProduct.isPending)"
+            :loading="false"
             @click="handleDelete"
           >
             Delete
@@ -242,12 +248,11 @@
 
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
+  import { useField, useForm } from 'vee-validate'
   import {
     useCategories,
-    useCreateProduct,
     useDeleteProduct,
     useProducts,
-    useUpdateProduct,
   } from '@/composables/useApi'
 
   const headers = [
@@ -258,26 +263,23 @@
     { title: 'Actions', value: 'actions', width: '10%', sortable: false },
   ]
 
-  const products = useProducts()
-  const categories = useCategories()
-  const createProduct = useCreateProduct()
-  const updateProduct = useUpdateProduct()
+  // Get products from composables
+  const { data: productsData, isPending, isError, error } = useProducts()
+  const { data: categoriesData } = useCategories()
   const deleteProduct = useDeleteProduct()
+
+  // Local ref for mutations
+  const mutatedProducts = ref<ProductData[] | null>(null)
+
+  // mockProducts reactively shows composables data or local mutations
+  const mockProducts = computed(
+    () => mutatedProducts.value || productsData.value || [],
+  )
 
   const dialogOpen = ref(false)
   const deleteDialogOpen = ref(false)
   const editingId = ref<string | null>(null)
   const deleteProductId = ref<string | null>(null)
-
-  const form = reactive({
-    name: '',
-    description: '',
-    price: 0,
-    categoryId: '',
-    stock: 0,
-  })
-
-  const formErrors = reactive<Record<string, any>>({})
 
   const snackbar = reactive({
     show: false,
@@ -285,123 +287,100 @@
     color: 'success',
   })
 
-  const productSchema = z.object({
-    name: z.string().min(3, 'Name must be at least 3 characters'),
-    description: z
-      .string()
-      .min(10, 'Description must be at least 10 characters'),
-    price: z.number().positive('Price must be greater than 0'),
-    categoryId: z.string().min(1, 'Category is required'),
-    stock: z.number().int().nonnegative('Stock cannot be negative'),
+  const { handleSubmit, handleReset } = useForm({
+    validationSchema: {
+      name(value: string) {
+        if (value && value.length >= 3) return true
+        return 'Name must be at least 3 characters'
+      },
+      description(value: string) {
+        if (value && value.length >= 10) return true
+        return 'Description must be at least 10 characters'
+      },
+      price(value: number) {
+        if (value && value > 0) return true
+        return 'Price must be greater than 0'
+      },
+      categoryId(value: string) {
+        if (value) return true
+        return 'Category is required'
+      },
+      stock(value: number) {
+        if (value !== null && value !== undefined && value >= 0) return true
+        return 'Stock cannot be negative'
+      },
+    },
   })
 
-  function validateField(fieldName: string) {
-    try {
-      switch (fieldName) {
-        case 'name': {
-          z.string().min(3).parse(form.name)
-          delete formErrors.name
-
-          break
-        }
-        case 'description': {
-          z.string().min(10).parse(form.description)
-          delete formErrors.description
-
-          break
-        }
-        case 'price': {
-          z.number().positive().parse(form.price)
-          delete formErrors.price
-
-          break
-        }
-        case 'stock': {
-          z.number().int().nonnegative().parse(form.stock)
-          delete formErrors.stock
-
-          break
-        }
-        // No default
-      }
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        formErrors[fieldName] = error.issues?.[0]?.message ?? 'Invalid field'
-      }
-    }
-  }
+  const name = useField<string>('name')
+  const description = useField<string>('description')
+  const price = useField<number>('price')
+  const categoryId = useField<string>('categoryId')
+  const stock = useField<number>('stock')
 
   function openCreateDialog() {
     editingId.value = null
-    form.name = ''
-    form.description = ''
-    form.price = 0
-    form.categoryId = ''
-    form.stock = 0
-    formErrors.name = ''
-    formErrors.description = ''
-    formErrors.price = ''
-    formErrors.stock = ''
+    name.value.value = ''
+    description.value.value = ''
+    price.value.value = 0
+    categoryId.value.value = ''
+    stock.value.value = 0
     dialogOpen.value = true
   }
 
   function openEditDialog(item: ProductData) {
     editingId.value = item.id
-    form.name = item.name
-    form.description = item.description
-    form.price = item.price
-    form.categoryId = item.categoryId
-    form.stock = item.stock
-    formErrors.name = ''
-    formErrors.description = ''
-    formErrors.price = ''
-    formErrors.stock = ''
+    name.value.value = item.name
+    description.value.value = item.description
+    price.value.value = item.price
+    categoryId.value.value = item.categoryId
+    stock.value.value = item.stock
     dialogOpen.value = true
   }
 
   function closeDialog() {
     dialogOpen.value = false
     editingId.value = null
+    handleReset()
   }
 
-  async function handleSave() {
+  const handleSave = handleSubmit(async () => {
     try {
-      productSchema.parse(form)
-      formErrors.name = ''
-      formErrors.description = ''
-      formErrors.price = ''
-      formErrors.stock = ''
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        for (const err of error.issues) {
-          const path = err.path[0] as string
-          formErrors[path] = err.message
-        }
-      }
-      return
-    }
-
-    try {
+      const currentData = mockProducts.value
       if (editingId.value) {
-        await updateProduct.mutateAsync({
-          id: editingId.value,
-          data: {
-            name: form.name,
-            description: form.description,
-            price: form.price,
-            categoryId: form.categoryId,
-            stock: form.stock,
-          },
-        })
+        // Update existing product
+        const index = currentData.findIndex(p => p.id === editingId.value)
+        if (index !== -1) {
+          const updatedData = [...currentData]
+          const currentProduct = updatedData[index]!
+          updatedData[index] = {
+            id: currentProduct.id,
+            name: name.value.value as string,
+            description: description.value.value as string,
+            price: price.value.value as number,
+            categoryId: categoryId.value.value as string,
+            stock: stock.value.value as number,
+            created_at: currentProduct.created_at,
+            updated_at: currentProduct.updated_at,
+            deleted_at: currentProduct.deleted_at,
+          }
+          mutatedProducts.value = updatedData
+        }
         snackbar.message = 'Product updated successfully'
       } else {
-        await createProduct.mutateAsync({
-          name: form.name,
-          description: form.description,
-          price: form.price,
-          categoryId: form.categoryId,
-          stock: form.stock,
-        })
+        // Create new product
+        const newProduct: ProductData = {
+          id: Date.now().toString(),
+          name: name.value.value as string,
+          description: description.value.value as string,
+          price: price.value.value as number,
+          categoryId: categoryId.value.value as string,
+          stock: stock.value.value as number,
+          created_at: null,
+          updated_at: null,
+          deleted_at: null,
+        }
+        mutatedProducts.value = [...currentData, newProduct]
         snackbar.message = 'Product created successfully'
       }
       snackbar.color = 'success'
@@ -412,7 +391,7 @@
       snackbar.color = 'error'
       snackbar.show = true
     }
-  }
+  })
 
   function confirmDelete(id: string) {
     deleteProductId.value = id
@@ -424,6 +403,9 @@
 
     try {
       await deleteProduct.mutateAsync(deleteProductId.value)
+      mutatedProducts.value = mockProducts.value.filter(
+        p => p.id !== deleteProductId.value,
+      )
       snackbar.message = 'Product deleted successfully'
       snackbar.color = 'success'
       snackbar.show = true

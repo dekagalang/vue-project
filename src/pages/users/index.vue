@@ -28,8 +28,8 @@
       </v-row>
 
       <!-- Loading State -->
-      <!-- <v-row
-        v-if="users.isPending"
+      <v-row
+        v-if="isPending"
         justify="center"
       >
         <v-col cols="12">
@@ -37,21 +37,22 @@
             <v-skeleton-loader type="table" />
           </v-card>
         </v-col>
-      </v-row> -->
+      </v-row>
 
       <!-- Error State -->
-      <!-- <v-row v-else-if="users.isError">
+      <v-row v-else-if="isError">
         <v-col cols="12">
           <v-alert
             title="Error Loading Users"
             type="error"
           >
-            {{ users.error }}
+            {{ error?.message || 'Failed to load users' }}
           </v-alert>
         </v-col>
-      </v-row> -->
+      </v-row>
 
-      <v-row>
+      <!-- Data Table -->
+      <v-row v-else>
         <v-col cols="12">
           <v-card>
             <v-data-table
@@ -302,7 +303,7 @@
   ]
 
   // Get users from composables
-  const { data: usersData } = useUsers()
+  const { data: usersData, isPending, isError, error } = useUsers()
 
   // Local ref for mutations
   const mutatedUsers = ref<User[] | null>(null)
