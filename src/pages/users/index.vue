@@ -58,7 +58,7 @@
               class="elevation-0"
               :headers="headers"
               item-value="id"
-              :items="users.data.value || []"
+              :items="mockUsers"
             >
               <template #[`item.role`]="{ item }">
                 <v-chip
@@ -122,7 +122,9 @@
               >
                 <v-text-field
                   v-model="name.value.value"
-                  :error-messages="name.errorMessage.value"
+                  :error-messages="
+                    name.meta.touched ? name.errorMessage.value : []
+                  "
                   label="Full Name"
                   outlined
                 />
@@ -134,7 +136,9 @@
               >
                 <v-text-field
                   v-model="email.value.value"
-                  :error-messages="email.errorMessage.value"
+                  :error-messages="
+                    email.meta.touched ? email.errorMessage.value : []
+                  "
                   label="Email"
                   outlined
                   type="email"
@@ -147,7 +151,9 @@
               >
                 <v-select
                   v-model="role.value.value"
-                  :error-messages="role.errorMessage.value"
+                  :error-messages="
+                    role.meta.touched ? role.errorMessage.value : []
+                  "
                   :items="['admin', 'manager', 'user']"
                   label="Role"
                   outlined
@@ -179,7 +185,8 @@
                       md="5"
                     >
                       <v-text-field
-                        v-model="(field.value as any).label"
+                        :model-value="getPhoneLabel(index)"
+                        @update:model-value="setPhoneLabel(index, $event)"
                         dense
                         label="Label"
                         outlined
@@ -190,11 +197,12 @@
                       md="6"
                     >
                       <Field
-                        v-slot="{ field: numberField, meta, errors }"
+                        v-slot="{ meta, errors }"
                         :name="`phones.${index}.number`"
                       >
                         <v-text-field
-                          v-model="numberField.value"
+                          :model-value="getPhoneNumber(index)"
+                          @update:model-value="setPhoneNumber(index, $event)"
                           dense
                           label="Phone Number"
                           outlined
@@ -238,9 +246,7 @@
           <v-btn @click="closeDialog">Cancel</v-btn>
           <v-btn
             color="primary"
-            :loading="
-              unref(createUser.isPending) || unref(updateUser.isPending)
-            "
+            :loading="false"
             @click="handleSave"
           >
             Save
@@ -262,7 +268,7 @@
           <v-btn @click="deleteDialogOpen = false">Cancel</v-btn>
           <v-btn
             color="error"
-            :loading="unref(deleteUser.isPending)"
+            :loading="false"
             @click="handleDelete"
           >
             Delete
@@ -284,19 +290,8 @@
 
 <script setup lang="ts">
   import type { User } from '@/api/type'
-  import {
-    Field,
-    FieldArray,
-    useField,
-    useFieldArray,
-    useForm,
-  } from 'vee-validate'
-  import {
-    useCreateUser,
-    useDeleteUser,
-    useUpdateUser,
-    useUsers,
-  } from '@/composables/useApi'
+  import { Field, FieldArray, useField, useForm } from 'vee-validate'
+  import { useUsers } from '@/composables/useApi'
 
   const headers = [
     { title: 'Name', value: 'name', width: '20%' },
@@ -306,10 +301,14 @@
     { title: 'Actions', value: 'actions', width: '15%', sortable: false },
   ]
 
-  const users = useUsers()
-  const createUser = useCreateUser()
-  const updateUser = useUpdateUser()
-  const deleteUser = useDeleteUser()
+  // Get users from composables
+  const { data: usersData } = useUsers()
+
+  // Local ref for mutations
+  const mutatedUsers = ref<User[] | null>(null)
+
+  // mockUsers reactively shows composables data or local mutations
+  const mockUsers = computed(() => mutatedUsers.value || usersData.value || [])
 
   const dialogOpen = ref(false)
   const deleteDialogOpen = ref(false)
@@ -369,6 +368,26 @@
   const role = useField<string>('role')
   const phones = useField<Array<{ label: string; number: string }>>('phones')
 
+  function getPhoneLabel(index: number): string {
+    return phones.value.value?.[index]?.label ?? ''
+  }
+
+  function setPhoneLabel(index: number, value: string) {
+    if (phones.value.value && phones.value.value[index]) {
+      phones.value.value[index].label = value
+    }
+  }
+
+  function getPhoneNumber(index: number): string {
+    return phones.value.value?.[index]?.number ?? ''
+  }
+
+  function setPhoneNumber(index: number, value: string) {
+    if (phones.value.value && phones.value.value[index]) {
+      phones.value.value[index].number = value
+    }
+  }
+
   function openCreateDialog() {
     editingId.value = null
     name.value.value = ''
@@ -383,7 +402,10 @@
     name.value.value = item.name
     email.value.value = item.email
     role.value.value = item.role
-    phones.value.value = [...item.phones]
+    phones.value.value = item.phones.map(p => ({
+      label: p.label,
+      number: p.number,
+    }))
     dialogOpen.value = true
   }
 
@@ -394,35 +416,48 @@
   }
 
   function addPhone() {
-    const { push } = useFieldArray('phones')
-    push({ label: '', number: '' })
+    phones.value.value = [...phones.value.value, { label: '', number: '' }]
   }
 
   function removePhone(index: number) {
-    const { remove } = useFieldArray('phones')
-    remove(index)
+    phones.value.value = phones.value.value.filter((_, i) => i !== index)
   }
 
   const handleSave = handleSubmit(async () => {
     try {
+      const currentData = mockUsers.value
       if (editingId.value) {
-        await updateUser.mutateAsync({
-          id: editingId.value,
-          data: {
+        // Update existing user
+        const index = currentData.findIndex(u => u.id === editingId.value)
+        if (index !== -1) {
+          const updatedData = [...currentData]
+          const currentUser = updatedData[index]!
+          updatedData[index] = {
+            id: currentUser.id,
             name: name.value.value as string,
             email: email.value.value as string,
             role: role.value.value as 'admin' | 'manager' | 'user',
             phones: phones.value.value,
-          },
-        })
+            created_at: currentUser.created_at,
+            updated_at: currentUser.updated_at,
+            deleted_at: currentUser.deleted_at,
+          }
+          mutatedUsers.value = updatedData
+        }
         snackbar.message = 'User updated successfully'
       } else {
-        await createUser.mutateAsync({
+        // Create new user
+        const newUser: User = {
+          id: Date.now().toString(),
           name: name.value.value as string,
           email: email.value.value as string,
           role: role.value.value as 'admin' | 'manager' | 'user',
           phones: phones.value.value,
-        })
+          created_at: null,
+          updated_at: null,
+          deleted_at: null,
+        }
+        mutatedUsers.value = [...currentData, newUser]
         snackbar.message = 'User created successfully'
       }
       snackbar.color = 'success'
@@ -444,7 +479,10 @@
     if (!deleteUserId.value) return
 
     try {
-      await deleteUser.mutateAsync(deleteUserId.value)
+      // Delete from mock data
+      mutatedUsers.value = mockUsers.value.filter(
+        u => u.id !== deleteUserId.value,
+      )
       snackbar.message = 'User deleted successfully'
       snackbar.color = 'success'
       snackbar.show = true
