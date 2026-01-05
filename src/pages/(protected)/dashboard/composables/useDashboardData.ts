@@ -1,5 +1,5 @@
 import type { ChartOptions } from 'chart.js'
-import { useCategories, useProducts, useUsers } from '@/composables/useApi'
+import { useCategories, useProducts, useUsers } from '@/composables'
 
 export function useDashboardData() {
   const { data: usersData, isPending: usersIsPending } = useUsers()

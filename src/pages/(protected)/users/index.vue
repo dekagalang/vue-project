@@ -92,7 +92,7 @@
 
 <script setup lang="ts">
   import type { User } from '@/api/type'
-  import { useUsers } from '@/composables/useApi'
+  import { useUsers } from '@/composables'
   import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
   import UserDialog from './components/UserDialog.vue'
   import UserTable from './components/UserTable.vue'

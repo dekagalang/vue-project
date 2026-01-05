@@ -93,11 +93,7 @@
 
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
-  import {
-    useCategories,
-    useDeleteProduct,
-    useProducts,
-  } from '@/composables/useApi'
+  import { useCategories, useDeleteProduct, useProducts } from '@/composables'
   import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
   import ProductDialog from './components/ProductDialog.vue'
   import ProductTable from './components/ProductTable.vue'
