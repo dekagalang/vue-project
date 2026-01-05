@@ -12,7 +12,13 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: setupLayouts(routes),
+  routes: [
+    {
+      path: '/',
+      redirect: '/dashboard',
+    },
+    ...setupLayouts(routes),
+  ],
 })
 
 // Route guard for protected routes
@@ -21,12 +27,6 @@ router.beforeEach((to, from, next) => {
 
   // Initialize auth from localStorage
   authStore.initializeAuth()
-
-  // Redirect root path to dashboard
-  if (to.path === '/') {
-    next({ path: '/dashboard' })
-    return
-  }
 
   // Public routes that don't need authentication
   const publicRoutes = ['/login']

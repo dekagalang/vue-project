@@ -1,5 +1,5 @@
 <template>
-  <div class="products-page">
+  <div class="users-page">
     <v-container fluid>
       <v-row
         align="center"
@@ -9,7 +9,7 @@
           cols="12"
           md="6"
         >
-          <h1 class="text-h4">Product Management</h1>
+          <h1 class="text-h4">User Management</h1>
         </v-col>
         <v-col
           class="text-right"
@@ -22,7 +22,7 @@
             size="large"
             @click="openCreateDialog"
           >
-            Add Product
+            Add User
           </v-btn>
         </v-col>
       </v-row>
@@ -43,10 +43,10 @@
       <v-row v-else-if="isError">
         <v-col cols="12">
           <v-alert
-            title="Error Loading Products"
+            title="Error Loading Users"
             type="error"
           >
-            {{ error?.message || 'Failed to load products' }}
+            {{ error?.message || 'Failed to load users' }}
           </v-alert>
         </v-col>
       </v-row>
@@ -55,8 +55,8 @@
       <v-row v-else>
         <v-col cols="12">
           <v-card>
-            <ProductTable
-              :products="mockProducts"
+            <UserTable
+              :users="mockUsers"
               @edit="openEditDialog"
               @delete="confirmDelete"
             />
@@ -66,11 +66,10 @@
     </v-container>
 
     <!-- Create/Edit Dialog -->
-    <ProductDialog
-      ref="productDialogRef"
+    <UserDialog
+      ref="userDialogRef"
       v-model:open="dialogOpen"
       :editing-id="editingId"
-      :categories-data="categoriesData || []"
       @save="handleSave"
     />
 
@@ -92,34 +91,33 @@
 </template>
 
 <script setup lang="ts">
-  import type { ProductData } from '@/api/mock'
-  import {
-    useCategories,
-    useDeleteProduct,
-    useProducts,
-  } from '@/composables/useApi'
-  import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
-  import ProductDialog from './components/ProductDialog.vue'
-  import ProductTable from './components/ProductTable.vue'
+  definePage({
+    path: '/users',
+    meta: {
+      requiresAuth: true,
+    },
+  })
 
-  // Get products from composables
-  const { data: productsData, isPending, isError, error } = useProducts()
-  const { data: categoriesData } = useCategories()
-  const deleteProduct = useDeleteProduct()
+  import type { User } from '@/api/type'
+  import { useUsers } from '@/composables/useApi'
+  import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
+  import UserDialog from './components/UserDialog.vue'
+  import UserTable from './components/UserTable.vue'
+
+  // Get users from composables
+  const { data: usersData, isPending, isError, error } = useUsers()
 
   // Local ref for mutations
-  const mutatedProducts = ref<ProductData[] | null>(null)
+  const mutatedUsers = ref<User[] | null>(null)
 
-  // mockProducts reactively shows composables data or local mutations
-  const mockProducts = computed(
-    () => mutatedProducts.value || productsData.value || [],
-  )
+  // mockUsers reactively shows composables data or local mutations
+  const mockUsers = computed(() => mutatedUsers.value || usersData.value || [])
 
   const dialogOpen = ref(false)
   const deleteDialogOpen = ref(false)
   const editingId = ref<string | null>(null)
-  const deleteProductId = ref<string | null>(null)
-  const productDialogRef = ref<InstanceType<typeof ProductDialog>>()
+  const deleteUserId = ref<string | null>(null)
+  const userDialogRef = ref<InstanceType<typeof UserDialog>>()
 
   const snackbar = reactive({
     show: false,
@@ -129,56 +127,53 @@
 
   function openCreateDialog() {
     editingId.value = null
-    productDialogRef.value?.initializeCreate()
+    userDialogRef.value?.initializeCreate()
     dialogOpen.value = true
   }
 
-  function openEditDialog(product: ProductData) {
-    editingId.value = product.id
-    productDialogRef.value?.initializeEdit(product)
+  function openEditDialog(user: User) {
+    editingId.value = user.id
+    userDialogRef.value?.initializeEdit(user)
     dialogOpen.value = true
   }
 
   function confirmDelete(id: string) {
-    deleteProductId.value = id
+    deleteUserId.value = id
     deleteDialogOpen.value = true
   }
 
   async function handleSave(
-    productData: Omit<
-      ProductData,
-      'id' | 'created_at' | 'updated_at' | 'deleted_at'
-    >,
+    userData: Omit<User, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>,
   ) {
     try {
-      const currentData = mockProducts.value
+      const currentData = mockUsers.value
       if (editingId.value) {
-        // Update existing product
-        const index = currentData.findIndex(p => p.id === editingId.value)
+        // Update existing user
+        const index = currentData.findIndex(u => u.id === editingId.value)
         if (index !== -1) {
           const updatedData = [...currentData]
-          const currentProduct = updatedData[index]!
+          const currentUser = updatedData[index]!
           updatedData[index] = {
-            id: currentProduct.id,
-            ...productData,
-            created_at: currentProduct.created_at,
-            updated_at: currentProduct.updated_at,
-            deleted_at: currentProduct.deleted_at,
+            id: currentUser.id,
+            ...userData,
+            created_at: currentUser.created_at,
+            updated_at: currentUser.updated_at,
+            deleted_at: currentUser.deleted_at,
           }
-          mutatedProducts.value = updatedData
+          mutatedUsers.value = updatedData
         }
-        snackbar.message = 'Product updated successfully'
+        snackbar.message = 'User updated successfully'
       } else {
-        // Create new product
-        const newProduct: ProductData = {
+        // Create new user
+        const newUser: User = {
           id: Date.now().toString(),
-          ...productData,
+          ...userData,
           created_at: null,
           updated_at: null,
           deleted_at: null,
         }
-        mutatedProducts.value = [...currentData, newProduct]
-        snackbar.message = 'Product created successfully'
+        mutatedUsers.value = [...currentData, newUser]
+        snackbar.message = 'User created successfully'
       }
       snackbar.color = 'success'
       snackbar.show = true
@@ -190,14 +185,14 @@
   }
 
   async function handleDelete() {
-    if (!deleteProductId.value) return
+    if (!deleteUserId.value) return
 
     try {
-      await deleteProduct.mutateAsync(deleteProductId.value)
-      mutatedProducts.value = mockProducts.value.filter(
-        p => p.id !== deleteProductId.value,
+      // Delete from mock data
+      mutatedUsers.value = mockUsers.value.filter(
+        u => u.id !== deleteUserId.value,
       )
-      snackbar.message = 'Product deleted successfully'
+      snackbar.message = 'User deleted successfully'
       snackbar.color = 'success'
       snackbar.show = true
     } catch {
@@ -209,7 +204,7 @@
 </script>
 
 <style scoped>
-  .products-page {
+  .users-page {
     padding-top: 20px;
   }
 </style>

@@ -116,6 +116,13 @@
 </template>
 
 <script setup lang="ts">
+  definePage({
+    path: '/dashboard',
+    meta: {
+      requiresAuth: true,
+    },
+  })
+
   import {
     ArcElement,
     BarElement,

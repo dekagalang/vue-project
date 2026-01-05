@@ -102,6 +102,13 @@
   import CategoryTable from './components/CategoryTable.vue'
   import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
 
+  definePage({
+    path: '/categories',
+    meta: {
+      requiresAuth: true,
+    },
+  })
+
   // Get categories from composables
   const { data: categoriesData, isPending, isError, error } = useCategories()
   const deleteCategory = useDeleteCategory()

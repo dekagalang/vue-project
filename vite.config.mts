@@ -18,6 +18,18 @@ export default defineConfig({
   plugins: [
     VueRouter({
       dts: 'src/typed-router.d.ts',
+      routesFolder: [
+        {
+          src: 'src/pages/public',
+          path: '',
+          exclude: ['**/components/**', '**/composables/**'],
+        },
+        {
+          src: 'src/pages/protected',
+          path: '',
+          exclude: ['**/components/**', '**/composables/**'],
+        },
+      ],
     }),
     Layouts(),
     AutoImport({

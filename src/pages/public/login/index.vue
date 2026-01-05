@@ -1,7 +1,25 @@
-<route lang="yaml">
-meta:
-  layout: blank
-</route>
+<script setup lang="ts">
+  definePage({
+    path: '/login',
+    meta: {
+      public: true,
+      layout: 'blank',
+    },
+  })
+
+  import { useAuthStore } from '@/stores/auth'
+  import LoginForm from './components/LoginForm.vue'
+
+  const router = useRouter()
+  const authStore = useAuthStore()
+
+  async function handleLogin(email: string, password: string) {
+    const success = await authStore.login(email, password)
+    if (success) {
+      router.push('/dashboard')
+    }
+  }
+</script>
 
 <template>
   <div class="login-container">
@@ -23,21 +41,6 @@ meta:
     </v-container>
   </div>
 </template>
-
-<script setup lang="ts">
-  import { useAuthStore } from '@/stores/auth'
-  import LoginForm from './components/LoginForm.vue'
-
-  const router = useRouter()
-  const authStore = useAuthStore()
-
-  async function handleLogin(email: string, password: string) {
-    const success = await authStore.login(email, password)
-    if (success) {
-      router.push('/dashboard')
-    }
-  }
-</script>
 
 <style scoped>
   .login-container {

@@ -19,26 +19,10 @@ declare module 'vue-router/auto-routes' {
    */
   export interface RouteNamedMap {
     '/categories/': RouteRecordInfo<'/categories/', '/categories', Record<never, never>, Record<never, never>>,
-    '/categories/components/CategoryDialog': RouteRecordInfo<'/categories/components/CategoryDialog', '/categories/components/CategoryDialog', Record<never, never>, Record<never, never>>,
-    '/categories/components/CategoryTable': RouteRecordInfo<'/categories/components/CategoryTable', '/categories/components/CategoryTable', Record<never, never>, Record<never, never>>,
-    '/categories/components/DeleteConfirmDialog': RouteRecordInfo<'/categories/components/DeleteConfirmDialog', '/categories/components/DeleteConfirmDialog', Record<never, never>, Record<never, never>>,
     '/dashboard/': RouteRecordInfo<'/dashboard/', '/dashboard', Record<never, never>, Record<never, never>>,
-    '/dashboard/components/LowStockProductsList': RouteRecordInfo<'/dashboard/components/LowStockProductsList', '/dashboard/components/LowStockProductsList', Record<never, never>, Record<never, never>>,
-    '/dashboard/components/MonthlySalesChart': RouteRecordInfo<'/dashboard/components/MonthlySalesChart', '/dashboard/components/MonthlySalesChart', Record<never, never>, Record<never, never>>,
-    '/dashboard/components/ProductCategoryChart': RouteRecordInfo<'/dashboard/components/ProductCategoryChart', '/dashboard/components/ProductCategoryChart', Record<never, never>, Record<never, never>>,
-    '/dashboard/components/RecentUsersList': RouteRecordInfo<'/dashboard/components/RecentUsersList', '/dashboard/components/RecentUsersList', Record<never, never>, Record<never, never>>,
-    '/dashboard/components/StatCard': RouteRecordInfo<'/dashboard/components/StatCard', '/dashboard/components/StatCard', Record<never, never>, Record<never, never>>,
-    '/dashboard/components/UserRoleChart': RouteRecordInfo<'/dashboard/components/UserRoleChart', '/dashboard/components/UserRoleChart', Record<never, never>, Record<never, never>>,
     '/login/': RouteRecordInfo<'/login/', '/login', Record<never, never>, Record<never, never>>,
-    '/login/components/LoginForm': RouteRecordInfo<'/login/components/LoginForm', '/login/components/LoginForm', Record<never, never>, Record<never, never>>,
     '/products/': RouteRecordInfo<'/products/', '/products', Record<never, never>, Record<never, never>>,
-    '/products/components/DeleteConfirmDialog': RouteRecordInfo<'/products/components/DeleteConfirmDialog', '/products/components/DeleteConfirmDialog', Record<never, never>, Record<never, never>>,
-    '/products/components/ProductDialog': RouteRecordInfo<'/products/components/ProductDialog', '/products/components/ProductDialog', Record<never, never>, Record<never, never>>,
-    '/products/components/ProductTable': RouteRecordInfo<'/products/components/ProductTable', '/products/components/ProductTable', Record<never, never>, Record<never, never>>,
     '/users/': RouteRecordInfo<'/users/', '/users', Record<never, never>, Record<never, never>>,
-    '/users/components/DeleteConfirmDialog': RouteRecordInfo<'/users/components/DeleteConfirmDialog', '/users/components/DeleteConfirmDialog', Record<never, never>, Record<never, never>>,
-    '/users/components/UserDialog': RouteRecordInfo<'/users/components/UserDialog', '/users/components/UserDialog', Record<never, never>, Record<never, never>>,
-    '/users/components/UserTable': RouteRecordInfo<'/users/components/UserTable', '/users/components/UserTable', Record<never, never>, Record<never, never>>,
   }
 
   /**
@@ -52,88 +36,24 @@ declare module 'vue-router/auto-routes' {
    * @internal
    */
   export interface _RouteFileInfoMap {
-    'src/pages/categories/index.vue': {
+    'src/pages/protected/categories/index.vue': {
       routes: '/categories/'
       views: never
     }
-    'src/pages/categories/components/CategoryDialog.vue': {
-      routes: '/categories/components/CategoryDialog'
-      views: never
-    }
-    'src/pages/categories/components/CategoryTable.vue': {
-      routes: '/categories/components/CategoryTable'
-      views: never
-    }
-    'src/pages/categories/components/DeleteConfirmDialog.vue': {
-      routes: '/categories/components/DeleteConfirmDialog'
-      views: never
-    }
-    'src/pages/dashboard/index.vue': {
+    'src/pages/protected/dashboard/index.vue': {
       routes: '/dashboard/'
       views: never
     }
-    'src/pages/dashboard/components/LowStockProductsList.vue': {
-      routes: '/dashboard/components/LowStockProductsList'
-      views: never
-    }
-    'src/pages/dashboard/components/MonthlySalesChart.vue': {
-      routes: '/dashboard/components/MonthlySalesChart'
-      views: never
-    }
-    'src/pages/dashboard/components/ProductCategoryChart.vue': {
-      routes: '/dashboard/components/ProductCategoryChart'
-      views: never
-    }
-    'src/pages/dashboard/components/RecentUsersList.vue': {
-      routes: '/dashboard/components/RecentUsersList'
-      views: never
-    }
-    'src/pages/dashboard/components/StatCard.vue': {
-      routes: '/dashboard/components/StatCard'
-      views: never
-    }
-    'src/pages/dashboard/components/UserRoleChart.vue': {
-      routes: '/dashboard/components/UserRoleChart'
-      views: never
-    }
-    'src/pages/login/index.vue': {
+    'src/pages/public/login/index.vue': {
       routes: '/login/'
       views: never
     }
-    'src/pages/login/components/LoginForm.vue': {
-      routes: '/login/components/LoginForm'
-      views: never
-    }
-    'src/pages/products/index.vue': {
+    'src/pages/protected/products/index.vue': {
       routes: '/products/'
       views: never
     }
-    'src/pages/products/components/DeleteConfirmDialog.vue': {
-      routes: '/products/components/DeleteConfirmDialog'
-      views: never
-    }
-    'src/pages/products/components/ProductDialog.vue': {
-      routes: '/products/components/ProductDialog'
-      views: never
-    }
-    'src/pages/products/components/ProductTable.vue': {
-      routes: '/products/components/ProductTable'
-      views: never
-    }
-    'src/pages/users/index.vue': {
+    'src/pages/protected/users/index.vue': {
       routes: '/users/'
-      views: never
-    }
-    'src/pages/users/components/DeleteConfirmDialog.vue': {
-      routes: '/users/components/DeleteConfirmDialog'
-      views: never
-    }
-    'src/pages/users/components/UserDialog.vue': {
-      routes: '/users/components/UserDialog'
-      views: never
-    }
-    'src/pages/users/components/UserTable.vue': {
-      routes: '/users/components/UserTable'
       views: never
     }
   }
