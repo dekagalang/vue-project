@@ -6,7 +6,7 @@ import { z } from 'zod'
 const validationSchema = toTypedSchema(
   z.object({
     name: z.string().min(3, 'Name must be at least 3 characters'),
-    email: z.string().email('Invalid email format'),
+    email: z.email('Invalid email format'),
     role: z.enum(['admin', 'manager', 'user']),
     phones: z
       .array(
@@ -17,8 +17,7 @@ const validationSchema = toTypedSchema(
             .regex(/^\d{10,}$/, 'Phone must be at least 10 digits'),
         }),
       )
-      .optional()
-      .default([]),
+      .optional(),
   }),
 )
 

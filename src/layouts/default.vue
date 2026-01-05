@@ -106,7 +106,7 @@
   const navigationItems = [
     { title: 'Dashboard', to: '/', icon: 'mdi-view-dashboard' },
     { title: 'Users', to: '/users', icon: 'mdi-account-multiple' },
-    { title: 'Products', to: '/products', icon: 'mdi-package-multiple' },
+    { title: 'Products', to: '/products', icon: 'mdi-package' },
     { title: 'Categories', to: '/categories', icon: 'mdi-folder-multiple' },
   ]
 
