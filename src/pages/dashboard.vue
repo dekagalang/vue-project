@@ -79,18 +79,14 @@
           <v-card>
             <v-card-title>Users by Role</v-card-title>
             <v-card-text>
-              <!-- <div
-                v-if="usersQuery.isPending"
+              <div
+                v-if="usersIsPending"
                 class="text-center pa-8"
               >
                 <v-progress-circular indeterminate />
               </div>
               <DoughnutChart
                 v-else
-                :chart-data="userRoleChartData"
-                :options="chartOptions"
-              /> -->
-              <DoughnutChart
                 :chart-data="userRoleChartData"
                 :options="chartOptions"
               />
@@ -105,18 +101,14 @@
           <v-card>
             <v-card-title>Products per Category</v-card-title>
             <v-card-text>
-              <!-- <div
-                v-if="productsQuery.isPending"
+              <div
+                v-if="productsIsPending"
                 class="text-center pa-8"
               >
                 <v-progress-circular indeterminate />
               </div>
               <BarChart
                 v-else
-                :chart-data="productCategoryChartData"
-                :options="chartOptions"
-              /> -->
-              <BarChart
                 :chart-data="productCategoryChartData"
                 :options="chartOptions"
               />
@@ -148,7 +140,7 @@
         >
           <v-card>
             <v-card-title>Recent Users</v-card-title>
-            <v-list v-if="!usersQuery.isPending">
+            <v-list v-if="!usersIsPending">
               <v-list-item
                 v-for="user in recentUsers"
                 :key="user.id"
@@ -177,7 +169,7 @@
         >
           <v-card>
             <v-card-title>Low Stock Products</v-card-title>
-            <v-list v-if="!productsQuery.isPending">
+            <v-list v-if="!productsIsPending">
               <v-list-item
                 v-for="product in lowStockProducts"
                 :key="product.id"
@@ -235,9 +227,9 @@
     Legend,
   )
 
-  const usersQuery = useUsers()
-  const productsQuery = useProducts()
-  const categoriesQuery = useCategories()
+  const { data: usersData, isPending: usersIsPending } = useUsers()
+  const { data: productsData, isPending: productsIsPending } = useProducts()
+  const { data: categoriesData } = useCategories()
 
   const chartOptions: ChartOptions<any> = {
     responsive: true,
@@ -250,23 +242,13 @@
   }
 
   // KPI Calculations
-  const totalUsers = computed(() => {
-    const data = unref(usersQuery.data)
-    return data ? data.length : 0
-  })
-  const totalProducts = computed(() => {
-    const data = unref(productsQuery.data)
-    return data ? data.length : 0
-  })
-  const totalCategories = computed(() => {
-    const data = unref(categoriesQuery.data)
-    return data ? data.length : 0
-  })
+  const totalUsers = computed(() => usersData.value?.length ?? 0)
+  const totalProducts = computed(() => productsData.value?.length ?? 0)
+  const totalCategories = computed(() => categoriesData.value?.length ?? 0)
 
   const totalStockValue = computed(() => {
-    const data = unref(productsQuery.data)
-    if (!data) return 0
-    return data.reduce((sum: number, product) => {
+    if (!productsData.value) return 0
+    return productsData.value.reduce((sum: number, product) => {
       return sum + product.price * product.stock
     }, 0)
   })
@@ -274,7 +256,7 @@
   // User Role Chart Data
   const userRoleChartData = computed(() => {
     const roles = { admin: 0, manager: 0, user: 0 }
-    const users = unref(usersQuery.data) || []
+    const users = usersData.value || []
     for (const user of users) {
       roles[user.role]++
     }
@@ -304,8 +286,8 @@
   const productCategoryChartData = computed(() => {
     const categoryCount: Record<string, number> = {}
     const categoryNames: Record<string, string> = {}
-    const categories = unref(categoriesQuery.data) || []
-    const products = unref(productsQuery.data) || []
+    const categories = categoriesData.value || []
+    const products = productsData.value || []
 
     for (const cat of categories) {
       categoryCount[cat.id] = 0
@@ -372,14 +354,11 @@
   })
 
   // Recent Users (latest 3)
-  const recentUsers = computed(() => {
-    const users = unref(usersQuery.data) || []
-    return users.slice(0, 3)
-  })
+  const recentUsers = computed(() => usersData.value?.slice(0, 3) ?? [])
 
   // Low Stock Products (stock < 50)
   const lowStockProducts = computed(() => {
-    const products = unref(productsQuery.data) || []
+    const products = productsData.value || []
     const filtered = products.filter(p => p.stock < 50)
     // eslint-disable-next-line unicorn/no-array-sort
     return filtered.sort((a: any, b: any) => a.stock - b.stock).slice(0, 5)

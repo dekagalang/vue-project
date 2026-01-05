@@ -22,6 +22,12 @@ router.beforeEach((to, from, next) => {
   // Initialize auth from localStorage
   authStore.initializeAuth()
 
+  // Redirect root path to dashboard
+  if (to.path === '/') {
+    next({ path: '/dashboard' })
+    return
+  }
+
   // Public routes that don't need authentication
   const publicRoutes = ['/login']
   const isPublicRoute = publicRoutes.includes(to.path)
@@ -34,7 +40,7 @@ router.beforeEach((to, from, next) => {
 
   // If user is authenticated and trying to access login page
   if (authStore.isAuthenticated() && to.path === '/login') {
-    next({ path: '/' })
+    next({ path: '/dashboard' })
     return
   }
 
