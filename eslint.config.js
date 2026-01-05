@@ -2,6 +2,7 @@ import vuetify from 'eslint-config-vuetify'
 
 export default vuetify({
   rules: {
+    curly: 'off',
     'vue/html-indent': 'off',
     'vue/first-attribute-linebreak': 'off',
     'vue/multi-word-component-names': 'off',
@@ -15,5 +16,6 @@ export default vuetify({
     '@stylistic/member-delimiter-style': 'off',
     '@stylistic/operator-linebreak': 'off',
     '@stylistic/quote-props': 'off',
+    'unicorn/no-array-sort': 'off',
   },
 })
