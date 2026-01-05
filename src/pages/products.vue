@@ -143,7 +143,7 @@
                   v-model="form.categoryId"
                   item-title="name"
                   item-value="id"
-                  :items="(categories.data as any) || []"
+                  :items="unref(categories.data) || []"
                   label="Category"
                   outlined
                 />

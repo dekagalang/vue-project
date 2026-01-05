@@ -51,8 +51,6 @@
         </v-col>
       </v-row> -->
 
-      <!-- Data Table -->
-      <!-- <v-row v-else></v-row> -->
       <v-row>
         <v-col cols="12">
           <v-card>
@@ -123,11 +121,10 @@
                 md="6"
               >
                 <v-text-field
-                  v-model="form.name"
-                  :error-messages="formErrors.name"
+                  v-model="name.value.value"
+                  :error-messages="name.errorMessage.value"
                   label="Full Name"
                   outlined
-                  @blur="validateField('name')"
                 />
               </v-col>
 
@@ -136,12 +133,11 @@
                 md="6"
               >
                 <v-text-field
-                  v-model="form.email"
-                  :error-messages="formErrors.email"
+                  v-model="email.value.value"
+                  :error-messages="email.errorMessage.value"
                   label="Email"
                   outlined
                   type="email"
-                  @blur="validateField('email')"
                 />
               </v-col>
 
@@ -150,7 +146,8 @@
                 md="4"
               >
                 <v-select
-                  v-model="form.role"
+                  v-model="role.value.value"
+                  :error-messages="role.errorMessage.value"
                   :items="['admin', 'manager', 'user']"
                   label="Role"
                   outlined
@@ -167,53 +164,61 @@
                 Phone Numbers
               </div>
 
-              <v-row
-                v-for="(phone, index) in form.phones"
-                :key="index"
-                class="mb-3"
+              <FieldArray
+                v-slot="{ fields }"
+                name="phones"
               >
-                <v-col
-                  cols="12"
-                  md="5"
-                >
-                  <v-text-field
-                    v-model="phone.label"
-                    dense
-                    label="Label"
-                    outlined
-                  />
-                </v-col>
-                <v-col
-                  cols="12"
-                  md="6"
-                >
-                  <v-text-field
-                    v-model="phone.number"
-                    dense
-                    :error-messages="
-                      formErrors.phones?.[index]?.['number']
-                        ? ['Invalid phone number']
-                        : []
-                    "
-                    label="Phone Number"
-                    outlined
-                    @blur="validateField('phones')"
-                  />
-                </v-col>
-                <v-col
-                  class="d-flex align-center"
-                  cols="12"
-                  md="1"
-                >
-                  <v-btn
-                    color="error"
-                    icon="mdi-delete"
-                    size="small"
-                    variant="text"
-                    @click="removePhone(index)"
-                  />
-                </v-col>
-              </v-row>
+                <div>
+                  <v-row
+                    v-for="(field, index) in fields"
+                    :key="field.key"
+                    class="mb-3"
+                  >
+                    <v-col
+                      cols="12"
+                      md="5"
+                    >
+                      <v-text-field
+                        v-model="(field.value as any).label"
+                        dense
+                        label="Label"
+                        outlined
+                      />
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      md="6"
+                    >
+                      <Field
+                        v-slot="{ field: numberField, meta, errors }"
+                        :name="`phones.${index}.number`"
+                      >
+                        <v-text-field
+                          v-model="numberField.value"
+                          dense
+                          label="Phone Number"
+                          outlined
+                          :error="meta.touched && errors.length > 0"
+                          :error-messages="errors"
+                        />
+                      </Field>
+                    </v-col>
+                    <v-col
+                      class="d-flex align-center"
+                      cols="12"
+                      md="1"
+                    >
+                      <v-btn
+                        color="error"
+                        icon="mdi-delete"
+                        size="small"
+                        variant="text"
+                        @click="removePhone(index)"
+                      />
+                    </v-col>
+                  </v-row>
+                </div>
+              </FieldArray>
 
               <v-btn
                 color="primary"
@@ -280,6 +285,13 @@
 <script setup lang="ts">
   import type { User } from '@/api/type'
   import {
+    Field,
+    FieldArray,
+    useField,
+    useFieldArray,
+    useForm,
+  } from 'vee-validate'
+  import {
     useCreateUser,
     useDeleteUser,
     useUpdateUser,
@@ -304,145 +316,112 @@
   const editingId = ref<string | null>(null)
   const deleteUserId = ref<string | null>(null)
 
-  const form = reactive({
-    name: '',
-    email: '',
-    role: 'user' as 'admin' | 'manager' | 'user',
-    phones: [{ label: 'Primary', number: '' }],
-  })
-
-  const formErrors = reactive<Record<string, any>>({})
-
   const snackbar = reactive({
     show: false,
     message: '',
     color: 'success',
   })
 
-  const userSchema = z.object({
-    name: z.string().min(3, 'Name must be at least 3 characters'),
-    email: z.email('Invalid email format'),
-    role: z.enum(['admin', 'manager', 'user']),
-    phones: z.array(
-      z.object({
-        label: z.string().min(1),
-        number: z
-          .string()
-          .regex(/^\d{10,}$/, 'Phone must be at least 10 digits'),
-      }),
-    ),
-  })
+  const { handleSubmit, handleReset } = useForm({
+    validationSchema: {
+      name(value: string) {
+        if (value && value.length >= 3) return true
+        return 'Name must be at least 3 characters'
+      },
+      email(value: string) {
+        if (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) return true
+        return 'Invalid email format'
+      },
+      role(value: string) {
+        if (value && ['admin', 'manager', 'user'].includes(value)) return true
+        return 'Please select a role'
+      },
+      phones(value: Array<{ label: string; number: string }>) {
+        if (!value || value.length === 0) return true
 
-  function validateField(fieldName: string) {
-    try {
-      switch (fieldName) {
-        case 'name': {
-          z.string().min(3).parse(form.name)
-          delete formErrors.name
+        const errors: any[] = []
 
-          break
-        }
-        case 'email': {
-          z.string().email().parse(form.email)
-          delete formErrors.email
+        for (const [index, phone] of value.entries()) {
+          const phoneErrors: any = {}
 
-          break
-        }
-        case 'phones': {
-          for (const [index, phone] of form.phones.entries()) {
-            if (!formErrors.phones) formErrors.phones = {}
-            try {
-              z.string()
-                .regex(/^\d{10,}$/)
-                .parse(phone.number)
-              delete formErrors.phones[index]
-            } catch {
-              if (!formErrors.phones[index]) formErrors.phones[index] = {}
-              formErrors.phones[index].number = true
-            }
+          if (!phone.label) {
+            phoneErrors.label = 'Label is required'
           }
 
-          break
+          if (!phone.number) {
+            phoneErrors.number = 'Phone number is required'
+          } else if (!/^\d{10,}$/.test(phone.number)) {
+            phoneErrors.number = 'Phone must be at least 10 digits'
+          }
+
+          if (Object.keys(phoneErrors).length > 0) {
+            errors[index] = phoneErrors
+          }
         }
-        // No default
-      }
-    } catch {
-      // Error already set above
-    }
-  }
+
+        return errors.length > 0 ? errors : true
+      },
+    },
+  })
+
+  const name = useField<string>('name')
+  const email = useField<string>('email')
+  const role = useField<string>('role')
+  const phones = useField<Array<{ label: string; number: string }>>('phones')
 
   function openCreateDialog() {
     editingId.value = null
-    form.name = ''
-    form.email = ''
-    form.role = 'user'
-    form.phones = [{ label: 'Primary', number: '' }]
-    formErrors.name = ''
-    formErrors.email = ''
-    formErrors.phones = {}
+    name.value.value = ''
+    email.value.value = ''
+    role.value.value = 'user'
+    phones.value.value = [{ label: 'Primary', number: '' }]
     dialogOpen.value = true
   }
 
   function openEditDialog(item: User) {
     editingId.value = item.id
-    form.name = item.name
-    form.email = item.email
-    form.role = item.role
-    form.phones = [...item.phones]
-    formErrors.name = ''
-    formErrors.email = ''
-    formErrors.phones = {}
+    name.value.value = item.name
+    email.value.value = item.email
+    role.value.value = item.role
+    phones.value.value = [...item.phones]
     dialogOpen.value = true
   }
 
   function closeDialog() {
     dialogOpen.value = false
     editingId.value = null
+    handleReset()
   }
 
   function addPhone() {
-    form.phones.push({ label: '', number: '' })
+    const { push } = useFieldArray('phones')
+    push({ label: '', number: '' })
   }
 
   function removePhone(index: number) {
-    form.phones.splice(index, 1)
+    const { remove } = useFieldArray('phones')
+    remove(index)
   }
 
-  async function handleSave() {
-    try {
-      userSchema.parse(form)
-      formErrors.name = ''
-      formErrors.email = ''
-      formErrors.phones = {}
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        for (const err of error.issues) {
-          const path = err.path[0] as string
-          if (path === 'name') formErrors.name = err.message
-          if (path === 'email') formErrors.email = err.message
-        }
-      }
-      return
-    }
-
+  const handleSave = handleSubmit(async () => {
     try {
       if (editingId.value) {
         await updateUser.mutateAsync({
           id: editingId.value,
           data: {
-            name: form.name,
-            email: form.email,
-            role: form.role,
-            phones: form.phones,
+            name: name.value.value as string,
+            email: email.value.value as string,
+            role: role.value.value as 'admin' | 'manager' | 'user',
+            phones: phones.value.value,
           },
         })
         snackbar.message = 'User updated successfully'
       } else {
         await createUser.mutateAsync({
-          name: form.name,
-          email: form.email,
-          role: form.role,
-          phones: form.phones,
+          name: name.value.value as string,
+          email: email.value.value as string,
+          role: role.value.value as 'admin' | 'manager' | 'user',
+          phones: phones.value.value,
         })
         snackbar.message = 'User created successfully'
       }
@@ -454,7 +433,7 @@
       snackbar.color = 'error'
       snackbar.show = true
     }
-  }
+  })
 
   function confirmDelete(id: string) {
     deleteUserId.value = id

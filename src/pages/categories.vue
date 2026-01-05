@@ -28,7 +28,7 @@
       </v-row>
 
       <!-- Loading State -->
-      <v-row
+      <!-- <v-row
         v-if="categories.isPending"
         justify="center"
       >
@@ -37,10 +37,10 @@
             <v-skeleton-loader type="list-item@3" />
           </v-card>
         </v-col>
-      </v-row>
+      </v-row> -->
 
       <!-- Error State -->
-      <v-row v-else-if="categories.isError">
+      <!-- <v-row v-else-if="categories.isError">
         <v-col cols="12">
           <v-alert
             title="Error Loading Categories"
@@ -49,10 +49,11 @@
             {{ categories.error }}
           </v-alert>
         </v-col>
-      </v-row>
+      </v-row> -->
 
       <!-- Tree View with Expansion -->
-      <v-row v-else>
+      <!-- <v-row v-else> -->
+      <v-row>
         <v-col cols="12">
           <v-card>
             <v-data-table
