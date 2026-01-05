@@ -92,13 +92,6 @@
 </template>
 
 <script setup lang="ts">
-  definePage({
-    path: '/products',
-    meta: {
-      requiresAuth: true,
-    },
-  })
-
   import type { ProductData } from '@/api/mock'
   import {
     useCategories,
@@ -108,6 +101,13 @@
   import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
   import ProductDialog from './components/ProductDialog.vue'
   import ProductTable from './components/ProductTable.vue'
+
+  definePage({
+    path: '/products',
+    meta: {
+      requiresAuth: true,
+    },
+  })
 
   // Get products from composables
   const { data: productsData, isPending, isError, error } = useProducts()

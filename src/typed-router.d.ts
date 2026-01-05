@@ -36,23 +36,23 @@ declare module 'vue-router/auto-routes' {
    * @internal
    */
   export interface _RouteFileInfoMap {
-    'src/pages/protected/categories/index.vue': {
+    'src/pages/(protected)/categories/index.vue': {
       routes: '/categories/'
       views: never
     }
-    'src/pages/protected/dashboard/index.vue': {
+    'src/pages/(protected)/dashboard/index.vue': {
       routes: '/dashboard/'
       views: never
     }
-    'src/pages/public/login/index.vue': {
+    'src/pages/(public)/login/index.vue': {
       routes: '/login/'
       views: never
     }
-    'src/pages/protected/products/index.vue': {
+    'src/pages/(protected)/products/index.vue': {
       routes: '/products/'
       views: never
     }
-    'src/pages/protected/users/index.vue': {
+    'src/pages/(protected)/users/index.vue': {
       routes: '/users/'
       views: never
     }

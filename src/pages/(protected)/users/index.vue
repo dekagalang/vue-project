@@ -91,18 +91,18 @@
 </template>
 
 <script setup lang="ts">
+  import type { User } from '@/api/type'
+  import { useUsers } from '@/composables/useApi'
+  import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
+  import UserDialog from './components/UserDialog.vue'
+  import UserTable from './components/UserTable.vue'
+
   definePage({
     path: '/users',
     meta: {
       requiresAuth: true,
     },
   })
-
-  import type { User } from '@/api/type'
-  import { useUsers } from '@/composables/useApi'
-  import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
-  import UserDialog from './components/UserDialog.vue'
-  import UserTable from './components/UserTable.vue'
 
   // Get users from composables
   const { data: usersData, isPending, isError, error } = useUsers()

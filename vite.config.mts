@@ -20,12 +20,12 @@ export default defineConfig({
       dts: 'src/typed-router.d.ts',
       routesFolder: [
         {
-          src: 'src/pages/public',
+          src: 'src/pages/(public)',
           path: '',
           exclude: ['**/components/**', '**/composables/**'],
         },
         {
-          src: 'src/pages/protected',
+          src: 'src/pages/(protected)',
           path: '',
           exclude: ['**/components/**', '**/composables/**'],
         },
@@ -39,6 +39,7 @@ export default defineConfig({
         {
           pinia: ['defineStore', 'storeToRefs'],
           zod: ['z'],
+          'unplugin-vue-router/runtime': ['definePage'],
         },
       ],
       dts: 'src/auto-imports.d.ts',

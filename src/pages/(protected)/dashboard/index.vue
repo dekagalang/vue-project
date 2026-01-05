@@ -116,13 +116,6 @@
 </template>
 
 <script setup lang="ts">
-  definePage({
-    path: '/dashboard',
-    meta: {
-      requiresAuth: true,
-    },
-  })
-
   import {
     ArcElement,
     BarElement,
@@ -142,6 +135,13 @@
   import StatCard from './components/StatCard.vue'
   import UserRoleChart from './components/UserRoleChart.vue'
   import { useDashboardData } from './composables/useDashboardData'
+
+  definePage({
+    path: '/dashboard',
+    meta: {
+      requiresAuth: true,
+    },
+  })
 
   ChartJS.register(
     ArcElement,

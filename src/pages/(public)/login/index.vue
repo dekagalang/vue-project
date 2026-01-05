@@ -1,4 +1,7 @@
 <script setup lang="ts">
+  import { useAuthStore } from '@/stores/auth'
+  import LoginForm from './components/LoginForm.vue'
+
   definePage({
     path: '/login',
     meta: {
@@ -6,9 +9,6 @@
       layout: 'blank',
     },
   })
-
-  import { useAuthStore } from '@/stores/auth'
-  import LoginForm from './components/LoginForm.vue'
 
   const router = useRouter()
   const authStore = useAuthStore()
