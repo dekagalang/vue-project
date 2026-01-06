@@ -6,7 +6,6 @@
     path: '/login',
     meta: {
       public: true,
-      layout: 'blank',
     },
   })
 

@@ -1,96 +1,104 @@
 <template>
   <v-app>
-    <!-- Navigation Drawer (Sidebar) -->
-    <v-navigation-drawer
-      v-model="drawer"
-      color="primary"
-    >
-      <v-list-item
-        class="mb-4"
-        subtitle="Management System"
-        title="Admin Dashboard"
+    <!-- Show blank layout for public routes -->
+    <template v-if="route.meta.public">
+      <router-view />
+    </template>
+
+    <!-- Otherwise show layout with sidebar -->
+    <template v-else>
+      <!-- Navigation Drawer (Sidebar) -->
+      <v-navigation-drawer
+        v-model="drawer"
+        color="primary"
       >
-        <template #prepend>
+        <v-list-item
+          class="mb-4"
+          subtitle="Management System"
+          title="Admin Dashboard"
+        >
+          <template #prepend>
+            <v-avatar
+              color="accent"
+              icon="mdi-shield-admin"
+            />
+          </template>
+        </v-list-item>
+
+        <v-divider />
+
+        <v-list>
+          <v-list-item
+            v-for="item in navigationItems"
+            :key="item.to"
+            color="accent"
+            exact
+            :prepend-icon="item.icon"
+            :title="item.title"
+            :to="item.to"
+          />
+        </v-list>
+
+        <v-spacer />
+
+        <v-divider />
+
+        <v-list-item
+          :prepend-icon="
+            authStore.user?.role === 'admin'
+              ? 'mdi-account-circle'
+              : 'mdi-account'
+          "
+          :subtitle="authStore.user?.email"
+          :title="authStore.user?.name || 'User'"
+          @click="showUserMenu = true"
+        />
+
+        <v-menu
+          v-model="showUserMenu"
+          :close-on-content-click="false"
+          location="end"
+        >
+          <template #activator="{ props }">
+            <v-list-item
+              prepend-icon="mdi-logout"
+              title="Logout"
+              v-bind="props"
+              @click="handleLogout"
+            />
+          </template>
+        </v-menu>
+      </v-navigation-drawer>
+
+      <!-- Top App Bar -->
+      <v-app-bar
+        class="px-4"
+        color="primary"
+        dark
+      >
+        <v-app-bar-nav-icon @click="drawer = !drawer" />
+
+        <v-spacer />
+
+        <div class="d-flex align-center gap-2">
+          <span class="text-caption">{{ authStore.user?.name }}</span>
           <v-avatar
             color="accent"
-            icon="mdi-shield-admin"
-          />
-        </template>
-      </v-list-item>
+            size="small"
+          >
+            {{ authStore.user?.name?.charAt(0) }}
+          </v-avatar>
+        </div>
+      </v-app-bar>
 
-      <v-divider />
+      <!-- Main Content -->
+      <v-main>
+        <router-view />
+      </v-main>
 
-      <v-list>
-        <v-list-item
-          v-for="item in navigationItems"
-          :key="item.to"
-          color="accent"
-          exact
-          :prepend-icon="item.icon"
-          :title="item.title"
-          :to="item.to"
-        />
-      </v-list>
-
-      <v-spacer />
-
-      <v-divider />
-
-      <v-list-item
-        :prepend-icon="
-          authStore.user?.role === 'admin'
-            ? 'mdi-account-circle'
-            : 'mdi-account'
-        "
-        :subtitle="authStore.user?.email"
-        :title="authStore.user?.name || 'User'"
-        @click="showUserMenu = true"
-      />
-
-      <v-menu
-        v-model="showUserMenu"
-        :close-on-content-click="false"
-        location="end"
-      >
-        <template #activator="{ props }">
-          <v-list-item
-            prepend-icon="mdi-logout"
-            title="Logout"
-            v-bind="props"
-            @click="handleLogout"
-          />
-        </template>
-      </v-menu>
-    </v-navigation-drawer>
-
-    <!-- Top App Bar -->
-    <v-app-bar
-      class="px-4"
-      color="primary"
-      dark
-    >
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
-
-      <v-spacer />
-
-      <div class="d-flex align-center gap-2">
-        <span class="text-caption">{{ authStore.user?.name }}</span>
-        <v-avatar
-          color="accent"
-          size="small"
-        >
-          {{ authStore.user?.name?.charAt(0) }}
-        </v-avatar>
-      </div>
-    </v-app-bar>
-
-    <!-- Main Content -->
-    <v-main>
-      <router-view />
-    </v-main>
-
-    <!-- Footer -->
-    <AppFooter />
+      <!-- Footer -->
+      <AppFooter />
+    </template>
   </v-app>
 </template>
 
@@ -98,6 +106,7 @@
   import { useAuthStore } from '@/stores/auth'
 
   const router = useRouter()
+  const route = useRoute()
   const authStore = useAuthStore()
 
   const drawer = ref(true)
