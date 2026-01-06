@@ -54,11 +54,11 @@
         </v-col>
       </v-row>
 
-      <!-- Charts -->
+      <!-- Charts Row 1 -->
       <v-row class="mb-6">
         <v-col
           cols="12"
-          md="6"
+          md="4"
         >
           <UserRoleChart
             :chart-data="data.userRoleChartData.value"
@@ -69,7 +69,7 @@
 
         <v-col
           cols="12"
-          md="6"
+          md="4"
         >
           <ProductCategoryChart
             :chart-data="data.productCategoryChartData.value"
@@ -77,11 +77,11 @@
             :is-pending="data.productsIsPending.value"
           />
         </v-col>
-      </v-row>
 
-      <!-- Monthly Sales Chart -->
-      <v-row class="mb-6">
-        <v-col cols="12">
+        <v-col
+          cols="12"
+          md="4"
+        >
           <MonthlySalesChart
             :chart-data="data.monthlySalesChartData.value"
             :options="data.chartOptions"
@@ -89,7 +89,7 @@
         </v-col>
       </v-row>
 
-      <!-- Recent Activity -->
+      <!-- Charts Row 2 -->
       <v-row>
         <v-col
           cols="12"

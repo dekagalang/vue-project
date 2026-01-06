@@ -1,4 +1,5 @@
 import type { ChartOptions } from 'chart.js'
+import { computed } from 'vue'
 import { useCategories, useProducts, useUsers } from '@/composables'
 
 export function useDashboardData() {

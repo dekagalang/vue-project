@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title>Products per Category</v-card-title>
+    <v-card-title class="text-subtitle1">Products per Category</v-card-title>
     <v-card-text>
       <div
         v-if="isPending"
@@ -8,17 +8,32 @@
       >
         <v-progress-circular indeterminate />
       </div>
-      <BarChart
+      <div
         v-else
-        :chart-data="chartData"
-        :options="options"
-      />
+        style="position: relative; height: 250px"
+      >
+        <Bar
+          :data="chartData"
+          :options="options"
+        />
+      </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
   import type { ChartOptions } from 'chart.js'
+  import {
+    BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
+    Tooltip,
+  } from 'chart.js'
+  import { Bar } from 'vue-chartjs'
+
+  ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
   defineProps<{
     chartData: any
@@ -26,3 +41,13 @@
     isPending: boolean
   }>()
 </script>
+
+<style scoped>
+  :deep(.v-card-title) {
+    padding: 16px 16px 8px 16px;
+  }
+
+  :deep(.v-card-text) {
+    padding: 8px 16px 16px 16px;
+  }
+</style>
