@@ -1,17 +1,26 @@
 <template>
-  <div class="product-edit-page">
+  <div class="product-detail-page">
     <v-container fluid>
       <v-row class="mb-6">
         <v-col cols="12">
-          <div class="d-flex align-center gap-3">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-btn
+                color="primary"
+                icon="mdi-arrow-left"
+                size="small"
+                variant="text"
+                @click="goBack"
+              />
+              <h1 class="text-h4">Product Detail</h1>
+            </div>
             <v-btn
               color="primary"
-              icon="mdi-arrow-left"
-              size="small"
-              variant="text"
-              @click="goBack"
-            />
-            <h1 class="text-h4">Edit Product</h1>
+              prepend-icon="mdi-pencil"
+              @click="goToUpdate"
+            >
+              Update
+            </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -33,130 +42,85 @@
         <v-col cols="12">
           <v-card>
             <v-card-text class="pa-6">
-              <v-form @submit.prevent="onSubmit">
-                <v-row>
-                  <v-col
-                    cols="12"
-                    md="6"
-                  >
-                    <v-text-field
-                      v-model="productForm.name.value.value"
-                      :error-messages="
-                        productForm.name.meta.touched
-                          ? productForm.name.errorMessage.value
-                          : []
-                      "
-                      label="Product Name"
-                      outlined
-                    />
-                  </v-col>
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Product Name</div>
+                    <div class="text-h6">{{ product?.name }}</div>
+                  </div>
+                </v-col>
 
-                  <v-col
-                    cols="12"
-                    md="6"
-                  >
-                    <v-select
-                      v-model="productForm.categoryId.value.value"
-                      item-title="name"
-                      item-value="id"
-                      :items="productForm.categoriesData.value"
-                      :error-messages="
-                        productForm.categoryId.meta.touched
-                          ? productForm.categoryId.errorMessage.value
-                          : []
-                      "
-                      label="Category"
-                      outlined
-                    />
-                  </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Category</div>
+                    <div class="text-body-1">
+                      {{
+                        categoriesData?.find(c => c.id === product?.categoryId)
+                          ?.name || '-'
+                      }}
+                    </div>
+                  </div>
+                </v-col>
 
-                  <v-col
-                    cols="12"
-                    md="6"
-                  >
-                    <v-text-field
-                      v-model.number="productForm.price.value.value"
-                      :error-messages="
-                        productForm.price.meta.touched
-                          ? productForm.price.errorMessage.value
-                          : []
-                      "
-                      label="Price (Rp)"
-                      outlined
-                      type="number"
-                    />
-                  </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Price</div>
+                    <div class="text-h6 text-primary">
+                      Rp{{ formatPrice(product?.price) }}
+                    </div>
+                  </div>
+                </v-col>
 
-                  <v-col
-                    cols="12"
-                    md="6"
-                  >
-                    <v-text-field
-                      v-model.number="productForm.stock.value.value"
-                      :error-messages="
-                        productForm.stock.meta.touched
-                          ? productForm.stock.errorMessage.value
-                          : []
-                      "
-                      label="Stock"
-                      outlined
-                      type="number"
-                    />
-                  </v-col>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Stock</div>
+                    <v-chip
+                      :color="stockColor(product?.stock)"
+                      label
+                    >
+                      {{ product?.stock }} units
+                    </v-chip>
+                  </div>
+                </v-col>
 
-                  <v-col cols="12">
-                    <v-textarea
-                      v-model="productForm.description.value.value"
-                      :error-messages="
-                        productForm.description.meta.touched
-                          ? productForm.description.errorMessage.value
-                          : []
-                      "
-                      label="Description"
-                      outlined
-                      rows="4"
-                    />
-                  </v-col>
-                </v-row>
-              </v-form>
+                <v-col cols="12">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Description</div>
+                    <div class="text-body-2">
+                      {{ product?.description || '-' }}
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
             </v-card-text>
-
-            <v-card-actions class="pa-4">
-              <v-spacer />
-              <v-btn @click="goBack">Cancel</v-btn>
-              <v-btn
-                color="primary"
-                @click="onSubmit"
-              >
-                Save
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-
-    <!-- Snackbar for notifications -->
-    <v-snackbar
-      v-model="snackbar.show"
-      :color="snackbar.color"
-      timeout="3000"
-    >
-      {{ snackbar.message }}
-    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
   import { useCategories } from '@/_hooks/categories'
-  import { useProducts, useUpdateProduct } from '@/_hooks/products'
-  import { useProductForm } from '../_hooks/useProductForm'
+  import { useProducts } from '@/_hooks/products'
 
   const router = useRouter()
   const route = useRoute()
 
   definePage({
-    path: '/products/:id/edit',
+    path: '/products/:id',
     meta: {
       requiresAuth: true,
     },
@@ -169,61 +133,27 @@
 
   const { data: productsData, isPending: productLoading } = useProducts()
   const { data: categoriesData } = useCategories()
-  const updateProduct = useUpdateProduct()
 
-  const categoriesDataComputed = computed(() => categoriesData.value || [])
-  const productForm = useProductForm(categoriesDataComputed)
-
-  const snackbar = reactive({
-    show: false,
-    message: '',
-    color: 'success',
+  const product = computed(() => {
+    return productsData.value?.find(p => p.id === productId.value)
   })
 
   function goBack() {
     router.back()
   }
 
-  const onSubmit = productForm.handleSubmit(async () => {
-    try {
-      await updateProduct.mutateAsync({
-        id: productId.value,
-        data: {
-          name: productForm.name.value.value as string,
-          description: productForm.description.value.value as string,
-          price: productForm.price.value.value as number,
-          categoryId: productForm.categoryId.value.value as string,
-          stock: productForm.stock.value.value as number,
-        },
-      })
+  function goToUpdate() {
+    router.push(`/products/${productId.value}/update`)
+  }
 
-      snackbar.color = 'success'
-      snackbar.message = 'Product updated successfully'
-      snackbar.show = true
+  function formatPrice(price?: number) {
+    if (!price) return '0'
+    return new Intl.NumberFormat('id-ID').format(price)
+  }
 
-      setTimeout(() => {
-        router.push('/products')
-      }, 1500)
-    } catch (error: any) {
-      snackbar.color = 'error'
-      snackbar.message = error?.message || 'Failed to update product'
-      snackbar.show = true
-    }
-  })
-
-  onMounted(() => {
-    const product = productsData.value?.find(p => p.id === productId.value)
-    if (product) {
-      productForm.initializeForEdit(product)
-    }
-  })
-
-  watch(productsData, newProducts => {
-    if (newProducts) {
-      const product = newProducts.find(p => p.id === productId.value)
-      if (product) {
-        productForm.initializeForEdit(product)
-      }
-    }
-  })
+  function stockColor(stock?: number) {
+    if (!stock || stock === 0) return 'error'
+    if (stock < 10) return 'warning'
+    return 'success'
+  }
 </script>

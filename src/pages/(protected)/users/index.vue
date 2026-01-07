@@ -57,6 +57,8 @@
           <v-card>
             <UserTable
               :users="mockUsers"
+              :pagination="pagination"
+              @update:pagination="pagination = $event"
               @edit="openEditDialog"
               @delete="confirmDelete"
             />
@@ -109,6 +111,7 @@
 
   const deleteDialogOpen = ref(false)
   const deleteUserId = ref<string | null>(null)
+  const pagination = ref({ page: 1, itemsPerPage: 10 })
 
   const snackbar = reactive({
     show: false,
@@ -117,7 +120,7 @@
   })
 
   function openEditDialog(user: User) {
-    router.push(`/users/${user.id}/edit`)
+    router.push(`/users/${user.id}/update`)
   }
 
   function confirmDelete(id: string) {

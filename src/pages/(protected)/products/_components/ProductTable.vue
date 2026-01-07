@@ -4,9 +4,22 @@
     :headers="headers"
     item-value="id"
     :items="products"
+    :page="pagination?.page || 1"
+    :items-per-page="pagination?.itemsPerPage || 10"
+    @update:page="updatePage"
+    @update:items-per-page="updateItemsPerPage"
   >
     <template #[`item.__index`]="{ index }">
-      {{ index + 1 }}
+      {{ getItemNumber(index) }}
+    </template>
+
+    <template #[`item.name`]="{ item }">
+      <RouterLink
+        :to="`/products/${(item as any).id}`"
+        class="text-primary font-weight-medium text-decoration-none"
+      >
+        {{ (item as any).name }}
+      </RouterLink>
     </template>
 
     <template #[`item.price`]="{ item }">
@@ -54,13 +67,15 @@
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
 
-  defineProps<{
+  const props = defineProps<{
     products: ProductData[]
+    pagination?: { page: number; itemsPerPage: number }
   }>()
 
-  defineEmits<{
+  const emit = defineEmits<{
     edit: [product: ProductData]
     delete: [id: string]
+    'update:pagination': [value: { page: number; itemsPerPage: number }]
   }>()
 
   const headers = [
@@ -71,4 +86,23 @@
     { title: 'Stock', value: 'stock', width: '10%' },
     { title: 'Actions', value: 'actions', width: '10%', sortable: false },
   ]
+
+  function getItemNumber(index: number): number {
+    const page = props.pagination?.page || 1
+    const itemsPerPage = props.pagination?.itemsPerPage || 10
+    return (page - 1) * itemsPerPage + index + 1
+  }
+
+  function updatePage(page: number) {
+    const newPagination = {
+      page,
+      itemsPerPage: props.pagination?.itemsPerPage || 10,
+    }
+    emit('update:pagination', newPagination)
+  }
+
+  function updateItemsPerPage(itemsPerPage: number) {
+    const newPagination = { page: props.pagination?.page || 1, itemsPerPage }
+    emit('update:pagination', newPagination)
+  }
 </script>

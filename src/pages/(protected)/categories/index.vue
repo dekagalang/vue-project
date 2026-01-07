@@ -62,6 +62,7 @@
               :parent-ids-with-children="parentIdsWithChildren"
               :all-categories="mockCategories"
               @update:expanded="expanded = $event"
+              @update:pagination="pagination = $event"
               @edit="openEditDialog"
               @delete="confirmDelete"
             />
@@ -143,7 +144,7 @@
   })
 
   function openEditDialog(item: CategoryData) {
-    router.push(`/categories/${item.id}/edit`)
+    router.push(`/categories/${item.id}/update`)
   }
 
   function confirmDelete(id: string) {

@@ -5,12 +5,15 @@
     :item-key="getItemKey"
     item-value="id"
     :items="rootItems"
-    :pagination="pagination"
+    :page="pagination?.page || 1"
+    :items-per-page="pagination?.itemsPerPage || 10"
     :expanded="expanded"
     @update:expanded="$emit('update:expanded', $event)"
+    @update:page="updatePage"
+    @update:items-per-page="updateItemsPerPage"
   >
     <template #[`item.__index`]="{ index }">
-      {{ index + 1 }}
+      {{ getItemNumber(index) }}
     </template>
 
     <template #[`item.data-table-expand`]="{ item }">
@@ -28,7 +31,12 @@
     </template>
 
     <template #[`item.name`]="{ item }">
-      {{ (item as any).name }}
+      <RouterLink
+        :to="`/categories/${(item as any).id}`"
+        class="text-primary font-weight-medium text-decoration-none"
+      >
+        {{ (item as any).name }}
+      </RouterLink>
     </template>
 
     <template #[`item.type`]="{ item }">
@@ -114,6 +122,7 @@
 
   const emit = defineEmits<{
     'update:expanded': [value: string[]]
+    'update:pagination': [value: { page: number; itemsPerPage: number }]
     edit: [category: CategoryData]
     delete: [id: string]
   }>()
@@ -158,5 +167,24 @@
       currentExpanded.splice(index, 1)
     }
     emit('update:expanded', currentExpanded)
+  }
+
+  function getItemNumber(index: number): number {
+    const page = props.pagination?.page || 1
+    const itemsPerPage = props.pagination?.itemsPerPage || 10
+    return (page - 1) * itemsPerPage + index + 1
+  }
+
+  function updatePage(page: number) {
+    const newPagination = {
+      page,
+      itemsPerPage: props.pagination?.itemsPerPage || 10,
+    }
+    emit('update:pagination', newPagination)
+  }
+
+  function updateItemsPerPage(itemsPerPage: number) {
+    const newPagination = { page: props.pagination?.page || 1, itemsPerPage }
+    emit('update:pagination', newPagination)
   }
 </script>

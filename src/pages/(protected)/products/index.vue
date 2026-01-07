@@ -57,6 +57,8 @@
           <v-card>
             <ProductTable
               :products="mockProducts"
+              :pagination="pagination"
+              @update:pagination="pagination = $event"
               @edit="openEditDialog"
               @delete="confirmDelete"
             />
@@ -111,6 +113,7 @@
 
   const deleteDialogOpen = ref(false)
   const deleteProductId = ref<string | null>(null)
+  const pagination = ref({ page: 1, itemsPerPage: 10 })
 
   const snackbar = reactive({
     show: false,
@@ -119,7 +122,7 @@
   })
 
   function openEditDialog(product: ProductData) {
-    router.push(`/products/${product.id}/edit`)
+    router.push(`/products/${product.id}/update`)
   }
 
   function confirmDelete(id: string) {

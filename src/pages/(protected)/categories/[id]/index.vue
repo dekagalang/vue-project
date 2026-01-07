@@ -1,17 +1,26 @@
 <template>
-  <div class="category-edit-page">
+  <div class="category-detail-page">
     <v-container fluid>
       <v-row class="mb-6">
         <v-col cols="12">
-          <div class="d-flex align-center gap-3">
+          <div class="d-flex align-center justify-space-between">
+            <div class="d-flex align-center gap-3">
+              <v-btn
+                color="primary"
+                icon="mdi-arrow-left"
+                size="small"
+                variant="text"
+                @click="goBack"
+              />
+              <h1 class="text-h4">Category Detail</h1>
+            </div>
             <v-btn
               color="primary"
-              icon="mdi-arrow-left"
-              size="small"
-              variant="text"
-              @click="goBack"
-            />
-            <h1 class="text-h4">Edit Category</h1>
+              prepend-icon="mdi-pencil"
+              @click="goToUpdate"
+            >
+              Update
+            </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -33,95 +42,73 @@
         <v-col cols="12">
           <v-card>
             <v-card-text class="pa-6">
-              <v-form @submit.prevent="onSubmit">
-                <v-text-field
-                  v-model="categoryForm.name.value.value"
-                  class="mb-4"
-                  :error-messages="
-                    categoryForm.name.meta.touched
-                      ? categoryForm.name.errorMessage.value
-                      : []
-                  "
-                  label="Category Name"
-                  outlined
-                />
+              <v-row>
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Category Name</div>
+                    <div class="text-h6">{{ category?.name }}</div>
+                  </div>
+                </v-col>
 
-                <v-textarea
-                  v-model="categoryForm.description.value.value"
-                  class="mb-4"
-                  :error-messages="
-                    categoryForm.description.meta.touched
-                      ? categoryForm.description.errorMessage.value
-                      : []
-                  "
-                  label="Description"
-                  outlined
-                  rows="3"
-                />
+                <v-col
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Type</div>
+                    <v-chip
+                      :color="typeColor(category?.type)"
+                      label
+                    >
+                      {{ category?.type }}
+                    </v-chip>
+                  </div>
+                </v-col>
 
-                <v-select
-                  v-model="categoryForm.type.value.value"
-                  class="mb-4"
-                  :error-messages="
-                    categoryForm.type.meta.touched
-                      ? categoryForm.type.errorMessage.value
-                      : []
-                  "
-                  :items="categoryForm.typeOptions.value"
-                  item-title="title"
-                  item-value="value"
-                  label="Type"
-                  outlined
-                />
+                <v-col cols="12">
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Description</div>
+                    <div class="text-body-2">
+                      {{ category?.description || '-' }}
+                    </div>
+                  </div>
+                </v-col>
 
-                <v-select
-                  v-model="categoryForm.parentId.value.value"
-                  class="mb-4"
-                  clearable
-                  item-title="name"
-                  item-value="id"
-                  :items="categoryForm.parentCategories.value"
-                  label="Parent Category (Optional - for subcategory)"
-                  outlined
-                />
-              </v-form>
+                <v-col
+                  v-if="category?.parentId"
+                  cols="12"
+                  md="6"
+                >
+                  <div class="mb-4">
+                    <div class="text-subtitle-2 text-grey">Parent Category</div>
+                    <div class="text-body-1">
+                      {{
+                        categoriesData?.find(c => c.id === category?.parentId)
+                          ?.name || '-'
+                      }}
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
             </v-card-text>
-
-            <v-card-actions class="pa-4">
-              <v-spacer />
-              <v-btn @click="goBack">Cancel</v-btn>
-              <v-btn
-                color="primary"
-                @click="onSubmit"
-              >
-                Save
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-
-    <!-- Snackbar for notifications -->
-    <v-snackbar
-      v-model="snackbar.show"
-      :color="snackbar.color"
-      timeout="3000"
-    >
-      {{ snackbar.message }}
-    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { useCategories, useUpdateCategory } from '@/_hooks/categories'
-  import { useCategoryForm } from '../_hooks/useCategoryForm'
+  import { useCategories } from '@/_hooks/categories'
 
   const router = useRouter()
   const route = useRoute()
 
   definePage({
-    path: '/categories/:id/edit',
+    path: '/categories/:id',
     meta: {
       requiresAuth: true,
     },
@@ -133,64 +120,24 @@
   })
 
   const { data: categoriesData, isPending: categoryLoading } = useCategories()
-  const updateCategory = useUpdateCategory()
 
-  const mockCategoriesComputed = computed(() => categoriesData.value || [])
-  const categoryForm = useCategoryForm(mockCategoriesComputed)
-
-  const snackbar = reactive({
-    show: false,
-    message: '',
-    color: 'success',
+  const category = computed(() => {
+    return categoriesData.value?.find(c => c.id === categoryId.value)
   })
 
   function goBack() {
     router.back()
   }
 
-  const onSubmit = categoryForm.handleSubmit(async () => {
-    if (!categoryId.value) return
+  function goToUpdate() {
+    router.push(`/categories/${categoryId.value}/update`)
+  }
 
-    try {
-      await updateCategory.mutateAsync({
-        id: categoryId.value,
-        data: {
-          name: categoryForm.name.value.value as string,
-          description: categoryForm.description.value.value as string,
-          type: categoryForm.type.value.value as 'category' | 'subcategory',
-          parentId: categoryForm.parentId.value.value,
-        },
-      })
-
-      snackbar.color = 'success'
-      snackbar.message = 'Category updated successfully'
-      snackbar.show = true
-
-      setTimeout(() => {
-        router.push('/categories')
-      }, 1500)
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to update category'
-      snackbar.color = 'error'
-      snackbar.message = message
-      snackbar.show = true
+  function typeColor(type?: string) {
+    const colors: Record<string, string> = {
+      category: 'primary',
+      subcategory: 'secondary',
     }
-  })
-
-  onMounted(() => {
-    const category = categoriesData.value?.find(c => c.id === categoryId.value)
-    if (category) {
-      categoryForm.initializeForEdit(category)
-    }
-  })
-
-  watch(categoriesData, newCategories => {
-    if (newCategories) {
-      const category = newCategories.find(c => c.id === categoryId.value)
-      if (category) {
-        categoryForm.initializeForEdit(category)
-      }
-    }
-  })
+    return colors[type || 'category'] || 'primary'
+  }
 </script>
