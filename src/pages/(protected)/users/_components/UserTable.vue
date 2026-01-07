@@ -15,27 +15,27 @@
 
     <template #[`item.name`]="{ item }">
       <RouterLink
-        :to="`/users/${(item as any).id}`"
+        :to="`/users/${item.id}`"
         class="text-primary font-weight-medium text-decoration-none"
       >
-        {{ (item as any).name }}
+        {{ item.name }}
       </RouterLink>
     </template>
 
     <template #[`item.role`]="{ item }">
       <v-chip
-        :color="getRoleColor((item as any).role)"
+        :color="getRoleColor(item.role)"
         size="small"
         text-color="white"
       >
-        {{ (item as any).role }}
+        {{ item.role }}
       </v-chip>
     </template>
 
     <template #[`item.phones`]="{ item }">
       <div class="text-caption">
         <div
-          v-for="phone in (item as any).phones"
+          v-for="phone in item.phones"
           :key="phone.number"
         >
           {{ phone.label }}: {{ phone.number }}
@@ -56,7 +56,7 @@
         icon="mdi-delete"
         size="small"
         variant="text"
-        @click="$emit('delete', (item as any).id)"
+        @click="$emit('delete', item.id)"
       />
     </template>
   </v-data-table>

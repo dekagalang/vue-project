@@ -32,19 +32,19 @@
 
     <template #[`item.name`]="{ item }">
       <RouterLink
-        :to="`/categories/${(item as any).id}`"
+        :to="`/categories/${item.id}`"
         class="text-primary font-weight-medium text-decoration-none"
       >
-        {{ (item as any).name }}
+        {{ item.name }}
       </RouterLink>
     </template>
 
     <template #[`item.type`]="{ item }">
       <v-chip
-        :color="(item as any).type === 'subcategory' ? 'primary' : 'secondary'"
+        :color="item.type === 'subcategory' ? 'primary' : 'secondary'"
         size="small"
       >
-        {{ (item as any).type === 'subcategory' ? 'Subcategory' : 'Category' }}
+        {{ item.type === 'subcategory' ? 'Subcategory' : 'Category' }}
       </v-chip>
     </template>
 
@@ -61,7 +61,7 @@
         icon="mdi-delete"
         size="small"
         variant="text"
-        @click="$emit('delete', (item as any).id)"
+        @click="$emit('delete', item.id)"
       />
     </template>
 
