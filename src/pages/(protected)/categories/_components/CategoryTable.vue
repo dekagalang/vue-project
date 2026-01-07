@@ -127,7 +127,7 @@
     { title: 'Actions', value: 'actions', width: '10%', sortable: false },
   ]
 
-  const getItemKey = (item: any) => item.id
+  const getItemKey = (item: CategoryData) => item.id
 
   const rootItems = computed(() => {
     return props.allCategories.filter((c: CategoryData) => !c.parentId)

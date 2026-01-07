@@ -114,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useCategories, useUpdateCategory } from '@/composables'
+  import { useCategories, useUpdateCategory } from '@/_hooks/categories'
   import { useCategoryForm } from '../_hooks/useCategoryForm'
 
   const router = useRouter()
@@ -169,9 +169,11 @@
       setTimeout(() => {
         router.push('/categories')
       }, 1500)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to update category'
       snackbar.color = 'error'
-      snackbar.message = error?.message || 'Failed to update category'
+      snackbar.message = message
       snackbar.show = true
     }
   })

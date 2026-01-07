@@ -83,8 +83,8 @@
 </template>
 
 <script setup lang="ts">
-  import type { User } from '@/api/type'
-  import { useDeleteUser, useUsers } from '@/composables'
+  import type { User } from '@/_types'
+  import { useDeleteUser, useUsers } from '@/_hooks/users'
   import DeleteConfirmDialog from './_components/DeleteConfirmDialog.vue'
   import UserTable from './_components/UserTable.vue'
 

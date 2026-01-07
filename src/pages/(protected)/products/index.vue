@@ -84,7 +84,7 @@
 
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
-  import { useCategories, useDeleteProduct, useProducts } from '@/composables'
+  import { useDeleteProduct, useProducts } from '@/_hooks/products'
   import DeleteConfirmDialog from './_components/DeleteConfirmDialog.vue'
   import ProductTable from './_components/ProductTable.vue'
 
@@ -99,7 +99,6 @@
 
   // Get products from composables
   const { data: productsData, isPending, isError, error } = useProducts()
-  const { data: categoriesData } = useCategories()
   const deleteProduct = useDeleteProduct()
 
   // Local ref for mutations

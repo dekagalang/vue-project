@@ -1,4 +1,4 @@
-import type { TCategoryCreateRequest } from '@/api/type'
+import type { TCategoryCreateRequest } from '@/_types'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { createCategory } from '@/api/mock'
 

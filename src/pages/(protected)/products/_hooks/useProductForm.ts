@@ -1,5 +1,5 @@
 import type { Ref } from 'vue'
-import type { ProductData } from '@/api/mock'
+import type { Category, ProductData } from '@/api/mock'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useField, useForm } from 'vee-validate'
 import { z } from 'zod'
@@ -16,7 +16,7 @@ const validationSchema = toTypedSchema(
   }),
 )
 
-export function useProductForm(categoriesData: Ref<any[]>) {
+export function useProductForm(categoriesData: Ref<Category[]>) {
   const { handleSubmit, handleReset } = useForm({
     validationSchema,
   })

@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
   import type { CategoryData } from '@/api/mock'
-  import { useCategories, useDeleteCategory } from '@/composables'
+  import { useCategories, useDeleteCategory } from '@/_hooks/categories'
   import CategoryTable from './_components/CategoryTable.vue'
   import DeleteConfirmDialog from './_components/DeleteConfirmDialog.vue'
 

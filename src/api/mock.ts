@@ -17,10 +17,10 @@ import type {
   TUserListResponse,
   TUserUpdateRequest,
   User,
-} from './type'
-import { mockCategories } from './mocks/mockCategories'
-import { mockProducts } from './mocks/mockProducts'
-import { mockUsers } from './mocks/mockUsers'
+} from '@/_types'
+import { mockCategories } from './_mocks/mockCategories'
+import { mockProducts } from './_mocks/mockProducts'
+import { mockUsers } from './_mocks/mockUsers'
 
 // =============== USER API ===============
 export function getUsers(params: TGetUsersParams): Promise<TUserListResponse> {
@@ -420,7 +420,10 @@ export function deleteCategory(id: string): Promise<TCategoryDetailResponse> {
   })
 }
 
-// Export type aliases for components
+// Export types and type aliases for components
+
 export type CategoryData = Category
 export type ProductData = Product
 export type UserData = User
+
+export { type Category, type Product, type User } from '@/_types'

@@ -1,5 +1,0 @@
-export { useCategories } from './queries/useCategories'
-export { useCategory } from './queries/useCategory'
-export { useCreateCategory } from './queries/useCreateCategory'
-export { useDeleteCategory } from './queries/useDeleteCategory'
-export { useUpdateCategory } from './queries/useUpdateCategory'

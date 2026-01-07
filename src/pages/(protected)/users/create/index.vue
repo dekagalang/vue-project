@@ -185,7 +185,7 @@
 
 <script setup lang="ts">
   import { Field, FieldArray } from 'vee-validate'
-  import { useCreateUser } from '@/composables'
+  import { useCreateUser } from '@/_hooks/users'
   import { useUserForm } from '../_hooks/useUserForm'
 
   const router = useRouter()
@@ -226,9 +226,11 @@
       setTimeout(() => {
         router.push('/users')
       }, 1500)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to create user'
       snackbar.color = 'error'
-      snackbar.message = error?.message || 'Failed to create user'
+      snackbar.message = message
       snackbar.show = true
     }
   })

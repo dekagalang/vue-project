@@ -1,4 +1,4 @@
-import type { User } from '@/api/type'
+import type { User } from '@/_types'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useField, useForm } from 'vee-validate'
 import { z } from 'zod'

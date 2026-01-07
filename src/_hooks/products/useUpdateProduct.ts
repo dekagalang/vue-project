@@ -1,4 +1,4 @@
-import type { TProductUpdateRequest } from '@/api/type'
+import type { TProductUpdateRequest } from '@/_types'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { updateProduct } from '@/api/mock'
 

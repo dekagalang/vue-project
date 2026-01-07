@@ -1,5 +1,0 @@
-export { useProducts } from './queries/useProducts'
-export { useProduct } from './queries/useProduct'
-export { useCreateProduct } from './queries/useCreateProduct'
-export { useUpdateProduct } from './queries/useUpdateProduct'
-export { useDeleteProduct } from './queries/useDeleteProduct'

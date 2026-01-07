@@ -162,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { User } from '@/api/type'
+  import type { User } from '@/_types'
   import { Field, FieldArray } from 'vee-validate'
   import { useUserForm } from '../_hooks/useUserForm'
 

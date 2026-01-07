@@ -1,4 +1,4 @@
-import type { TUserUpdateRequest } from '@/api/type'
+import type { TUserUpdateRequest } from '@/_types'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { updateUser } from '@/api/mock'
 

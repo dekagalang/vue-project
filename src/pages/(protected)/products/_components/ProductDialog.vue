@@ -113,13 +113,13 @@
 </template>
 
 <script setup lang="ts">
-  import type { ProductData } from '@/api/mock'
+  import type { Category, ProductData } from '@/api/mock'
   import { useProductForm } from '../_hooks/useProductForm'
 
   const props = defineProps<{
     open: boolean
     editingId: string | null
-    categoriesData: any[]
+    categoriesData: Category[]
   }>()
 
   const emit = defineEmits<{

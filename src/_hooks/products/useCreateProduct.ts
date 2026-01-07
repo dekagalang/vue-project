@@ -1,4 +1,4 @@
-import type { TProductCreateRequest } from '@/api/type'
+import type { TProductCreateRequest } from '@/_types'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { createProduct } from '@/api/mock'
 

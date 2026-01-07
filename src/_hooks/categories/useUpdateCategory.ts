@@ -1,4 +1,4 @@
-import type { TCategoryUpdateRequest } from '@/api/type'
+import type { TCategoryUpdateRequest } from '@/_types'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { updateCategory } from '@/api/mock'
 

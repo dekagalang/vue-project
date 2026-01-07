@@ -1,6 +1,8 @@
 import type { ChartOptions } from 'chart.js'
 import { computed } from 'vue'
-import { useCategories, useProducts, useUsers } from '@/composables'
+import { useCategories } from '@/_hooks/categories'
+import { useProducts } from '@/_hooks/products'
+import { useUsers } from '@/_hooks/users'
 
 export function useDashboardData() {
   const { data: usersData, isPending: usersIsPending } = useUsers()

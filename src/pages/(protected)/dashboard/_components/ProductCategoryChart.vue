@@ -35,9 +35,22 @@
 
   ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
+  interface ChartDataset {
+    label?: string
+    data: number[]
+    backgroundColor?: string | string[]
+    borderColor?: string | string[]
+    borderWidth?: number
+  }
+
+  interface ChartDataType {
+    labels: (string | undefined)[]
+    datasets: ChartDataset[]
+  }
+
   defineProps<{
-    chartData: any
-    options: ChartOptions<any>
+    chartData: ChartDataType
+    options: ChartOptions<'bar'>
     isPending: boolean
   }>()
 </script>

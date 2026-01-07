@@ -36,9 +36,24 @@
     Legend,
   )
 
+  interface ChartDataset {
+    label?: string
+    data: number[]
+    backgroundColor?: string | string[]
+    borderColor?: string | string[]
+    borderWidth?: number
+    tension?: number
+    fill?: boolean
+  }
+
+  interface ChartDataType {
+    labels: (string | undefined)[]
+    datasets: ChartDataset[]
+  }
+
   defineProps<{
-    chartData: any
-    options: ChartOptions<any>
+    chartData: ChartDataType
+    options: ChartOptions<'line'>
   }>()
 </script>
 

@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-  import type { User } from '@/api/type'
+  import type { User } from '@/_types'
 
   defineProps<{
     users: User[]

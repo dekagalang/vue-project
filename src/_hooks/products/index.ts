@@ -1,5 +1,5 @@
-export { useProducts } from './useProducts'
-export { useProduct } from './useProduct'
 export { useCreateProduct } from './useCreateProduct'
 export { useDeleteProduct } from './useDeleteProduct'
+export { useProduct } from './useProduct'
+export { useProducts } from './useProducts'
 export { useUpdateProduct } from './useUpdateProduct'

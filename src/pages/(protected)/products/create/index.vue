@@ -135,7 +135,8 @@
 </template>
 
 <script setup lang="ts">
-  import { useCategories, useCreateProduct } from '@/composables'
+  import { useCategories } from '@/_hooks/categories'
+  import { useCreateProduct } from '@/_hooks/products'
   import { useProductForm } from '../_hooks/useProductForm'
 
   const router = useRouter()
@@ -180,9 +181,11 @@
       setTimeout(() => {
         router.push('/products')
       }, 1500)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to create product'
       snackbar.color = 'error'
-      snackbar.message = error?.message || 'Failed to create product'
+      snackbar.message = message
       snackbar.show = true
     }
   })

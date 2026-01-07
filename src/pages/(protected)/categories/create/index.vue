@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-  import { useCategories, useCreateCategory } from '@/composables'
+  import { useCategories, useCreateCategory } from '@/_hooks/categories'
   import { useCategoryForm } from '../_hooks/useCategoryForm'
 
   const router = useRouter()
@@ -145,9 +145,11 @@
       setTimeout(() => {
         router.push('/categories')
       }, 1500)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to create category'
       snackbar.color = 'error'
-      snackbar.message = error?.message || 'Failed to create category'
+      snackbar.message = message
       snackbar.show = true
     }
   })

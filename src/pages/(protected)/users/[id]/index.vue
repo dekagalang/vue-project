@@ -198,7 +198,7 @@
 
 <script setup lang="ts">
   import { Field, FieldArray } from 'vee-validate'
-  import { useDeleteUser, useUpdateUser, useUsers } from '@/composables'
+  import { useUpdateUser, useUsers } from '@/_hooks/users'
   import { useUserForm } from '../_hooks/useUserForm'
 
   const router = useRouter()

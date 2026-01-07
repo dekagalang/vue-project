@@ -148,7 +148,8 @@
 </template>
 
 <script setup lang="ts">
-  import { useCategories, useProducts, useUpdateProduct } from '@/composables'
+  import { useCategories } from '@/_hooks/categories'
+  import { useProducts, useUpdateProduct } from '@/_hooks/products'
   import { useProductForm } from '../_hooks/useProductForm'
 
   const router = useRouter()
