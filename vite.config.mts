@@ -22,12 +22,24 @@ export default defineConfig({
         {
           src: 'src/pages/(public)',
           path: '',
-          exclude: ['**/components/**', '**/composables/**'],
+          exclude: [
+            '**/components/**',
+            '**/composables/**',
+            '**/_components/**',
+            '**/_hooks/**',
+            '**/_types/**',
+          ],
         },
         {
           src: 'src/pages/(protected)',
           path: '',
-          exclude: ['**/components/**', '**/composables/**'],
+          exclude: [
+            '**/components/**',
+            '**/composables/**',
+            '**/_components/**',
+            '**/_hooks/**',
+            '**/_types/**',
+          ],
         },
       ],
     }),

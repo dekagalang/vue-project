@@ -62,7 +62,7 @@
 
 <script setup lang="ts">
   import { useAuthStore } from '@/stores/auth'
-  import { useLoginForm } from '../composables/useLoginForm'
+  import { useLoginForm } from '../_hooks/useLoginForm'
 
   const authStore = useAuthStore()
   const form = useLoginForm()

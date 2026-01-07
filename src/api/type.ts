@@ -111,6 +111,7 @@ export interface Category {
   id: string
   name: string
   description: string
+  type: 'category' | 'subcategory'
   parentId: string | null
   created_at: string | null
   updated_at: string | null
@@ -146,11 +147,13 @@ export interface TGetCategoriesParams {
 export interface TCategoryCreateRequest {
   name: string
   description: string
+  type: 'category' | 'subcategory'
   parentId: string | null
 }
 
 export interface TCategoryUpdateRequest {
   name?: string
   description?: string
+  type?: 'category' | 'subcategory'
   parentId?: string | null
 }

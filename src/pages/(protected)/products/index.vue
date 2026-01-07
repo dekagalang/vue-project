@@ -20,7 +20,7 @@
             color="primary"
             prepend-icon="mdi-plus"
             size="large"
-            @click="openCreateDialog"
+            :to="{ path: '/products/create' }"
           >
             Add Product
           </v-btn>
@@ -65,15 +65,6 @@
       </v-row>
     </v-container>
 
-    <!-- Create/Edit Dialog -->
-    <ProductDialog
-      ref="productDialogRef"
-      v-model:open="dialogOpen"
-      :editing-id="editingId"
-      :categories-data="categoriesData || []"
-      @save="handleSave"
-    />
-
     <!-- Delete Confirmation Dialog -->
     <DeleteConfirmDialog
       v-model:open="deleteDialogOpen"
@@ -94,9 +85,10 @@
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
   import { useCategories, useDeleteProduct, useProducts } from '@/composables'
-  import DeleteConfirmDialog from './components/DeleteConfirmDialog.vue'
-  import ProductDialog from './components/ProductDialog.vue'
-  import ProductTable from './components/ProductTable.vue'
+  import DeleteConfirmDialog from './_components/DeleteConfirmDialog.vue'
+  import ProductTable from './_components/ProductTable.vue'
+
+  const router = useRouter()
 
   definePage({
     path: '/products',
@@ -118,11 +110,8 @@
     () => mutatedProducts.value || productsData.value || [],
   )
 
-  const dialogOpen = ref(false)
   const deleteDialogOpen = ref(false)
-  const editingId = ref<string | null>(null)
   const deleteProductId = ref<string | null>(null)
-  const productDialogRef = ref<InstanceType<typeof ProductDialog>>()
 
   const snackbar = reactive({
     show: false,
@@ -130,66 +119,13 @@
     color: 'success',
   })
 
-  function openCreateDialog() {
-    editingId.value = null
-    productDialogRef.value?.initializeCreate()
-    dialogOpen.value = true
-  }
-
   function openEditDialog(product: ProductData) {
-    editingId.value = product.id
-    productDialogRef.value?.initializeEdit(product)
-    dialogOpen.value = true
+    router.push(`/products/${product.id}/edit`)
   }
 
   function confirmDelete(id: string) {
     deleteProductId.value = id
     deleteDialogOpen.value = true
-  }
-
-  async function handleSave(
-    productData: Omit<
-      ProductData,
-      'id' | 'created_at' | 'updated_at' | 'deleted_at'
-    >,
-  ) {
-    try {
-      const currentData = mockProducts.value
-      if (editingId.value) {
-        // Update existing product
-        const index = currentData.findIndex(p => p.id === editingId.value)
-        if (index !== -1) {
-          const updatedData = [...currentData]
-          const currentProduct = updatedData[index]!
-          updatedData[index] = {
-            id: currentProduct.id,
-            ...productData,
-            created_at: currentProduct.created_at,
-            updated_at: currentProduct.updated_at,
-            deleted_at: currentProduct.deleted_at,
-          }
-          mutatedProducts.value = updatedData
-        }
-        snackbar.message = 'Product updated successfully'
-      } else {
-        // Create new product
-        const newProduct: ProductData = {
-          id: Date.now().toString(),
-          ...productData,
-          created_at: null,
-          updated_at: null,
-          deleted_at: null,
-        }
-        mutatedProducts.value = [...currentData, newProduct]
-        snackbar.message = 'Product created successfully'
-      }
-      snackbar.color = 'success'
-      snackbar.show = true
-    } catch {
-      snackbar.message = 'An error occurred'
-      snackbar.color = 'error'
-      snackbar.show = true
-    }
   }
 
   async function handleDelete() {

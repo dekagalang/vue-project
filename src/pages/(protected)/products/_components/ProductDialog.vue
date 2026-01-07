@@ -114,7 +114,7 @@
 
 <script setup lang="ts">
   import type { ProductData } from '@/api/mock'
-  import { useProductForm } from '../composables/useProductForm'
+  import { useProductForm } from '../_hooks/useProductForm'
 
   const props = defineProps<{
     open: boolean

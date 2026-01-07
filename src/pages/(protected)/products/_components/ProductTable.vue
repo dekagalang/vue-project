@@ -5,6 +5,10 @@
     item-value="id"
     :items="products"
   >
+    <template #[`item.__index`]="{ index }">
+      {{ index + 1 }}
+    </template>
+
     <template #[`item.price`]="{ item }">
       <span class="font-weight-bold">
         Rp
@@ -60,8 +64,9 @@
   }>()
 
   const headers = [
-    { title: 'Name', value: 'name', width: '20%' },
-    { title: 'Description', value: 'description', width: '25%' },
+    { title: 'No', value: '__index', width: '50px', sortable: false },
+    { title: 'Name', value: 'name', width: '18%' },
+    { title: 'Description', value: 'description', width: '23%' },
     { title: 'Price', value: 'price', width: '15%' },
     { title: 'Stock', value: 'stock', width: '10%' },
     { title: 'Actions', value: 'actions', width: '10%', sortable: false },

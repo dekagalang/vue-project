@@ -10,6 +10,7 @@ const validationSchema = toTypedSchema(
     description: z
       .string()
       .min(10, 'Description must be at least 10 characters'),
+    type: z.enum(['category', 'subcategory']),
     parentId: z.string().nullable().optional(),
   }),
 )
@@ -21,7 +22,13 @@ export function useCategoryForm(mockCategories: Ref<CategoryData[]>) {
 
   const name = useField<string>('name')
   const description = useField<string>('description')
+  const type = useField<'category' | 'subcategory'>('type')
   const parentId = useField<string | null>('parentId')
+
+  const typeOptions = computed(() => [
+    { title: 'Category', value: 'category' },
+    { title: 'Subcategory', value: 'subcategory' },
+  ])
 
   const parentCategories = computed(() => {
     return mockCategories.value.filter((c: CategoryData) => !c.parentId)
@@ -30,12 +37,14 @@ export function useCategoryForm(mockCategories: Ref<CategoryData[]>) {
   function initializeForCreate() {
     name.value.value = ''
     description.value.value = ''
+    type.value.value = 'category'
     parentId.value.value = null
   }
 
   function initializeForEdit(category: CategoryData) {
     name.value.value = category.name
     description.value.value = category.description
+    type.value.value = category.type
     parentId.value.value = category.parentId || null
   }
 
@@ -46,6 +55,8 @@ export function useCategoryForm(mockCategories: Ref<CategoryData[]>) {
   return {
     name,
     description,
+    type,
+    typeOptions,
     parentId,
     parentCategories,
     handleSubmit,

@@ -128,13 +128,13 @@
     Title,
     Tooltip,
   } from 'chart.js'
-  import LowStockProductsList from './components/LowStockProductsList.vue'
-  import MonthlySalesChart from './components/MonthlySalesChart.vue'
-  import ProductCategoryChart from './components/ProductCategoryChart.vue'
-  import RecentUsersList from './components/RecentUsersList.vue'
-  import StatCard from './components/StatCard.vue'
-  import UserRoleChart from './components/UserRoleChart.vue'
-  import { useDashboardData } from './composables/useDashboardData'
+  import LowStockProductsList from './_components/LowStockProductsList.vue'
+  import MonthlySalesChart from './_components/MonthlySalesChart.vue'
+  import ProductCategoryChart from './_components/ProductCategoryChart.vue'
+  import RecentUsersList from './_components/RecentUsersList.vue'
+  import StatCard from './_components/StatCard.vue'
+  import UserRoleChart from './_components/UserRoleChart.vue'
+  import { useDashboardData } from './_hooks/useDashboardData'
 
   definePage({
     path: '/dashboard',

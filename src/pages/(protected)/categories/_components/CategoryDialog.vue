@@ -37,6 +37,21 @@
           />
 
           <v-select
+            v-model="categoryForm.type.value.value"
+            class="mb-4"
+            :error-messages="
+              categoryForm.type.meta.touched
+                ? categoryForm.type.errorMessage.value
+                : []
+            "
+            :items="categoryForm.typeOptions.value"
+            item-title="title"
+            item-value="value"
+            label="Type"
+            outlined
+          />
+
+          <v-select
             v-model="categoryForm.parentId.value.value"
             class="mb-4"
             clearable
@@ -65,7 +80,7 @@
 
 <script setup lang="ts">
   import type { CategoryData } from '@/api/mock'
-  import { useCategoryForm } from '../composables/useCategoryForm'
+  import { useCategoryForm } from '../_hooks/useCategoryForm'
 
   const props = defineProps<{
     open: boolean
@@ -109,6 +124,7 @@
       emit('save', {
         name: categoryForm.name.value.value as string,
         description: categoryForm.description.value.value as string,
+        type: categoryForm.type.value.value as 'category' | 'subcategory',
         parentId: categoryForm.parentId.value.value,
       })
       closeDialog()

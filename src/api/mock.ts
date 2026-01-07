@@ -18,141 +18,9 @@ import type {
   TUserUpdateRequest,
   User,
 } from './type'
-
-// Mock Data
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Ahmad Wijaya',
-    email: 'ahmad@example.com',
-    role: 'manager',
-    phones: [
-      { label: 'Primary', number: '08123456789' },
-      { label: 'Office', number: '021234567' },
-    ],
-    created_at: '2024-01-15',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '2',
-    name: 'Siti Nurhaliza',
-    email: 'siti@example.com',
-    role: 'user',
-    phones: [{ label: 'Primary', number: '08987654321' }],
-    created_at: '2024-02-10',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '3',
-    name: 'Budi Santoso',
-    email: 'budi@example.com',
-    role: 'user',
-    phones: [
-      { label: 'Primary', number: '08567890123' },
-      { label: 'Home', number: '0213456789' },
-    ],
-    created_at: '2024-01-20',
-    updated_at: null,
-    deleted_at: null,
-  },
-]
-
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Laptop Pro',
-    description: 'High-performance laptop for professionals',
-    price: 15_000_000,
-    categoryId: '1',
-    stock: 25,
-    created_at: '2024-01-10',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '2',
-    name: 'Wireless Mouse',
-    description: 'Ergonomic wireless mouse',
-    price: 250_000,
-    categoryId: '2',
-    stock: 150,
-    created_at: '2024-01-12',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '3',
-    name: 'USB-C Hub',
-    description: 'Multi-port USB-C hub',
-    price: 500_000,
-    categoryId: '2',
-    stock: 80,
-    created_at: '2024-01-15',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '4',
-    name: 'Monitor 27"',
-    description: '4K UHD Monitor',
-    price: 3_500_000,
-    categoryId: '3',
-    stock: 15,
-    created_at: '2024-01-18',
-    updated_at: null,
-    deleted_at: null,
-  },
-]
-
-const mockCategories: Category[] = [
-  {
-    id: '1',
-    name: 'Computers',
-    description: 'Desktop and laptop computers',
-    parentId: null,
-    created_at: '2024-01-01',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '2',
-    name: 'Accessories',
-    description: 'Computer accessories',
-    parentId: null,
-    created_at: '2024-01-01',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '3',
-    name: 'Peripherals',
-    description: 'Input/Output devices',
-    parentId: null,
-    created_at: '2024-01-01',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '4',
-    name: 'Keyboards',
-    description: 'Computer keyboards',
-    parentId: '2',
-    created_at: '2024-01-05',
-    updated_at: null,
-    deleted_at: null,
-  },
-  {
-    id: '5',
-    name: 'Mice',
-    description: 'Computer mice',
-    parentId: '2',
-    created_at: '2024-01-05',
-    updated_at: null,
-    deleted_at: null,
-  },
-]
+import { mockCategories } from './mocks/mockCategories'
+import { mockProducts } from './mocks/mockProducts'
+import { mockUsers } from './mocks/mockUsers'
 
 // =============== USER API ===============
 export function getUsers(params: TGetUsersParams): Promise<TUserListResponse> {
@@ -447,6 +315,7 @@ export function getCategory(id: string): Promise<TCategoryDetailResponse> {
         id: '',
         name: '',
         description: '',
+        type: 'category',
         parentId: null,
         created_at: null,
         updated_at: null,
@@ -461,8 +330,11 @@ export function createCategory(
 ): Promise<TCategoryDetailResponse> {
   const dateStr = new Date().toISOString().split('T')[0] || '2024-01-01'
   const newCategory: Category = {
-    ...data,
     id: String(Math.random()).slice(2),
+    name: data.name,
+    description: data.description,
+    type: data.type,
+    parentId: data.parentId,
     created_at: dateStr,
     updated_at: null,
     deleted_at: null,
@@ -487,6 +359,7 @@ export function updateCategory(
         id: '',
         name: '',
         description: '',
+        type: 'category',
         parentId: null,
         created_at: null,
         updated_at: null,
@@ -504,6 +377,7 @@ export function updateCategory(
     deleted_at: null,
     name: data.name ?? original.name,
     description: data.description ?? original.description,
+    type: data.type ?? original.type,
     parentId: data.parentId ?? original.parentId,
   }
   mockCategories[index] = updated
@@ -523,6 +397,7 @@ export function deleteCategory(id: string): Promise<TCategoryDetailResponse> {
         id: '',
         name: '',
         description: '',
+        type: 'category',
         parentId: null,
         created_at: null,
         updated_at: null,

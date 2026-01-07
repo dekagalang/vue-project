@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useAuthStore } from '@/stores/auth'
-  import LoginForm from './components/LoginForm.vue'
+  import LoginForm from './_components/LoginForm.vue'
 
   definePage({
     path: '/login',

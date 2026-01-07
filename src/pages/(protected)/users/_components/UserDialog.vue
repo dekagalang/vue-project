@@ -164,7 +164,7 @@
 <script setup lang="ts">
   import type { User } from '@/api/type'
   import { Field, FieldArray } from 'vee-validate'
-  import { useUserForm } from '../composables/useUserForm'
+  import { useUserForm } from '../_hooks/useUserForm'
 
   const props = defineProps<{
     open: boolean

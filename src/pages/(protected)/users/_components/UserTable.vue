@@ -5,6 +5,10 @@
     item-value="id"
     :items="users"
   >
+    <template #[`item.__index`]="{ index }">
+      {{ index + 1 }}
+    </template>
+
     <template #[`item.role`]="{ item }">
       <v-chip
         :color="getRoleColor((item as any).role)"
@@ -58,10 +62,11 @@
   }>()
 
   const headers = [
-    { title: 'Name', value: 'name', width: '20%' },
-    { title: 'Email', value: 'email', width: '25%' },
+    { title: 'No', value: '__index', width: '50px', sortable: false },
+    { title: 'Name', value: 'name', width: '18%' },
+    { title: 'Email', value: 'email', width: '23%' },
     { title: 'Role', value: 'role', width: '10%' },
-    { title: 'Phones', value: 'phones', width: '30%' },
+    { title: 'Phones', value: 'phones', width: '27%' },
     { title: 'Actions', value: 'actions', width: '15%', sortable: false },
   ]
 
